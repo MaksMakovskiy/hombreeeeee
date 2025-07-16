@@ -1,0 +1,9 @@
+{% extends "base.html.jinja" %}
+{% block content %}
+<h2>Выдать права на редактирование для расы: "{{ race.name }}"</h2>
+<form method="POST">
+    <label for="username">Имя пользователя:</label>
+    <input type="text" name="username" id="username" required>
+    <button type="submit" class="button">Выдать права</button>
+</form>
+{% endblock %}

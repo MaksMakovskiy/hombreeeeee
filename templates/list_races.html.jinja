@@ -1,22 +1,17 @@
 {% extends "base.html.jinja" %}
 {% block title %}Все расы{% endblock %}
 {% block content %}
-<div style="display: flex; justify-content: space-between; align-items: center;">
-    <h1>Все расы</h1>
+    <h1>Список рас</h1>
     {% if user %}
-        <a href="{{ url_for('create_race') }}" class="button" style="font-size: 22px; padding: 8px 18px; margin-bottom: 0;">&#43; Создать расу</a>
+        <a href="{{ url_for('races.create_race') }}" class="button">Создать новую расу</a>
     {% endif %}
-</div>
-<table>
-    <tr>
-        <th>Название</th>
-        <th>Описание</th>
-    </tr>
     {% for race in races %}
-    <tr>
-        <td>{{ race.name }}</td>
-        <td>{{ race.description }}</td>
-    </tr>
+        <div class="race-item">
+            <h2><a href="{{ url_for('races.view_race', race_id=race.id) }}">{{ race.name }}</a></h2>
+            {% if race.image_url %}
+                <img src="{{ race.image_url }}" alt="Картинка расы" style="max-width:200px;">
+            {% endif %}
+            <p>{{ race.description | nl2br }}</p>
+        </div>
     {% endfor %}
-</table>
 {% endblock %}

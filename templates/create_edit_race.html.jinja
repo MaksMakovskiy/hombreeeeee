@@ -1,16 +1,65 @@
 {% extends "base.html.jinja" %}
 {% block title %}Создать расу{% endblock %}
 {% block content %}
-<h1>Создать расу</h1>
-<form method="post">
+<h1>{{ 'Редактирование' if mode == 'edit' else 'Создание' }} расы</h1>
+<form method="POST" id="raceForm">
+    {{ form.csrf_token }}
     <p>
-        <label for="name">Название:</label>
-        <input type="text" name="name" id="name" required>
+        {{ form.name.label }} {{ form.name(class="form-control") }}
     </p>
     <p>
-        <label for="description">Описание:</label>
-        <textarea name="description" id="description" required></textarea>
+        {{ form.description.label }} {{ form.description(class="form-control") }}
     </p>
-    <input type="submit" value="Создать" class="button">
+    <p>
+        {{ form.image_url.label }} {{ form.image_url(class="form-control") }}
+    </p>
+    <h2>Умения</h2>
+    <div id="abilities-list"></div>
+    <button type="button" id="addAbilityBtn" class="button" style="margin-top:10px;">Добавить умение</button>
+    <input type="hidden" name="abilities_json_field" id="abilitiesJsonField" value='{{ existing_abilities_json|default("[]") }}'>
+    {{ form.submit(class="button") }}
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function renderAbilities() {
+    const abilities = JSON.parse(document.getElementById('abilitiesJsonField').value || "[]");
+    const container = document.getElementById('abilities-list');
+    container.innerHTML = '';
+    abilities.forEach((ab, idx) => {
+        container.insertAdjacentHTML('beforeend', `
+            <div class="ability-edit" style="border:1px solid #ccc;padding:10px;margin-bottom:10px;">
+                <label>Название:</label>
+                <input type="text" value="${ab.name || ''}" onchange="updateAbility(${idx}, 'name', this.value)">
+                <label>Описание:</label>
+                <textarea onchange="updateAbility(${idx}, 'description', this.value)">${ab.description || ''}</textarea>
+                <button type="button" onclick="removeAbility(${idx})" style="color:red;">Удалить</button>
+            </div>
+        `);
+    });
+}
+function updateAbility(idx, field, value) {
+    const abilities = JSON.parse(document.getElementById('abilitiesJsonField').value || "[]");
+    abilities[idx][field] = value;
+    document.getElementById('abilitiesJsonField').value = JSON.stringify(abilities);
+}
+function removeAbility(idx) {
+    const abilities = JSON.parse(document.getElementById('abilitiesJsonField').value || "[]");
+    abilities.splice(idx, 1);
+    document.getElementById('abilitiesJsonField').value = JSON.stringify(abilities);
+    renderAbilities();
+}
+document.getElementById('addAbilityBtn').onclick = function() {
+    const abilities = JSON.parse(document.getElementById('abilitiesJsonField').value || "[]");
+    abilities.push({name: '', description: ''});
+    document.getElementById('abilitiesJsonField').value = JSON.stringify(abilities);
+    renderAbilities();
+};
+document.addEventListener('DOMContentLoaded', renderAbilities);
+document.getElementById('raceForm').onsubmit = function() {
+    // abilitiesJsonField уже актуален
+    return true;
+};
+</script>
 {% endblock %}

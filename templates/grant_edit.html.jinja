@@ -29,5 +29,11 @@
         <p>Пока нет других пользователей с правами на редактирование.</p>
     {% endif %}
 
-    <p><a href="{% if content_type == 'class' %}{{ url_for('view_class', class_id=content_object.id) }}{% else %}{{ url_for('view_subclass', subclass_id=content_object.id) }}{% endif %}">Вернуться к просмотру контента</a></p>
+    <p>
+        <a href="{% if content_type == 'class' %}
+            {{ url_for('classes.view_class', class_id=content_object.id) }}
+        {% else %}
+            {{ url_for('subclasses.view_subclass', subclass_id=content_object.id) }}
+        {% endif %}">Вернуться к просмотру контента</a>
+    </p>
 {% endblock %}

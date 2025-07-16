@@ -13,20 +13,14 @@
             <ul class="sidebar-list">
                 <li>
                     <a href="{{ url_for('classes.list_classes') }}">Все классы</a>
-                    <ul class="sidebar-sublist">
-                        <li><a href="{{ url_for('classes.create_class') }}">Создать класс</a></li>
-                    </ul>
                 </li>
                 <li>
                     <a href="{{ url_for('subclasses.list_subclasses') }}">Все подклассы</a>
-                    <ul class="sidebar-sublist">
-                        <li><a href="{{ url_for('subclasses.create_subclass') }}">Создать подкласс</a></li>
-                    </ul>
                 </li>
             </ul>
             <div class="sidebar-title">Расы</div>
             <ul class="sidebar-list">
-                <li><a href="#">(Раздел для рас — реализуйте позже)</a></li>
+                <li><a href="{{ url_for('races.list_races') }}">Все расы</a></li>
             </ul>
         </div>
         <!-- Секция 2: Профиль и выход -->

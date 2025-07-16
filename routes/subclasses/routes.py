@@ -24,7 +24,7 @@ class SubclassForm(FlaskForm):
 
 @subclasses_bp.route("/")
 def list_subclasses():
-    subclasses = Subclass.query.all()
+    subclasses = Subclass.query.all()  # Показываем все подклассы
     return render_template('list_subclasses.html.jinja', subclasses=subclasses)
 
 @subclasses_bp.route("/create", methods=['GET', 'POST'])

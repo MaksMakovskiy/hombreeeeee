@@ -38,6 +38,7 @@ class Class(db.Model):
     skills = db.Column(db.Text, nullable=False)
     custom_columns_json = db.Column(db.Text, default='[]')  # Только тут!
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    editors_allowed = db.Column(db.JSON, default=list)  # список user_id
 
     # Relationships
     abilities = db.relationship('Ability', backref='class_ref', lazy='dynamic', 
@@ -57,6 +58,7 @@ class Subclass(db.Model):
     description = db.Column(db.Text, nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    editors_allowed = db.Column(db.JSON, default=list)  # список user_id
 
     # Relationships
     abilities = db.relationship('Ability', backref='subclass_ref', lazy='dynamic',
@@ -96,6 +98,23 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('classes.id'))
     subclass_id = db.Column(db.Integer, db.ForeignKey('subclass.id'))
+
+class Race(db.Model):
+    __tablename__ = 'races'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    editors_allowed = db.Column(db.JSON, default=list)
+    abilities = db.relationship('RaceAbility', backref='race_ref', lazy='dynamic', cascade='all, delete-orphan')
+
+class RaceAbility(db.Model):
+    __tablename__ = 'race_ability'
+    id = db.Column(db.Integer, primary_key=True)
+    race_id = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
 
 # --- Вспомогательные функции для пользователей (существующие) ---
 def create_user(username, password):
@@ -146,25 +165,22 @@ def add_comment(user_id, text, class_id=None, subclass_id=None):
     return comment
 
 def is_allowed_to_edit(user_id, content_object):
-    """Проверяет, имеет ли пользователь права на редактирование объекта."""
     if not user_id:
         return False
-    # Если пользователь - автор
-    if content_object.user_id == user_id:
+    # Автор всегда может редактировать
+    if hasattr(content_object, "user_id") and content_object.user_id == user_id:
         return True
-    # Если пользователь в списке разрешенных редакторов
-    if user_id in content_object.editors_allowed:
-        return True
-    return False
+    # Проверка прав редактора
+    editors = getattr(content_object, "editors_allowed", [])
+    return user_id in editors
 
-def grant_edit_permission(target_user_id, content_object, grantor_user_id):
+def grant_edit_permission(grantor_user_id, target_user_id, content_object):
     """
     Выдает права на редактирование объекта другому пользователю.
     Только автор объекта может выдавать права.
     """
     if not is_allowed_to_edit(grantor_user_id, content_object) and content_object.user_id != grantor_user_id:
         return False, "Только автор или текущий редактор может выдавать права."
-
     # Убедимся, что target_user_id существует
     if not get_user_by_id(target_user_id):
         return False, "Целевой пользователь не найден."

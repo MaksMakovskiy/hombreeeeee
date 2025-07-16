@@ -52,6 +52,7 @@
             <form action="{{ url_for('classes.delete_class', class_id=current_class.id) }}" method="POST" style="display: inline;">
                 <button type="submit" class="button delete" onclick="return confirm('Вы уверены?')">Удалить класс</button>
             </form>
+            <a href="{{ url_for('main.grant_edit', content_type='class', content_id=current_class.id) }}" class="button">Выдать права на редактирование</a>
         </div>
     {% endif %}
 

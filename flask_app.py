@@ -3,6 +3,7 @@
 from flask import Flask, g
 from flask_sqlalchemy import SQLAlchemy
 from routes import auth_bp, classes_bp, subclasses_bp, profile_bp, main_bp
+from routes.races.routes import races_bp
 from crud import db
 from markupsafe import Markup
 
@@ -18,6 +19,7 @@ app.register_blueprint(classes_bp)
 app.register_blueprint(subclasses_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(main_bp)
+app.register_blueprint(races_bp)
 
 db.init_app(app)
 with app.app_context():
