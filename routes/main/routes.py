@@ -20,4 +20,4 @@ def dashboard():
 
 @main_bp.route("/grant_edit/<content_type>/<int:content_id>", methods=['GET', 'POST'])
 def grant_edit(content_type, content_id):
-    # ...existing code...
+    pass
