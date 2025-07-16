@@ -20,6 +20,8 @@ app.register_blueprint(profile_bp)
 app.register_blueprint(main_bp)
 
 db.init_app(app)
+with app.app_context():
+    db.create_all()
 
 @app.template_filter('nl2br')
 def nl2br(value):
@@ -30,6 +32,4 @@ def inject_user():
     return dict(user=getattr(g, 'user', None))
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
     app.run(debug=True, host="0.0.0.0", port=8989)
