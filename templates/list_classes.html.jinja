@@ -4,7 +4,7 @@
 <div style="display: flex; justify-content: space-between; align-items: center;">
     <h1>Все классы</h1>
     {% if user %}
-        <a href="{{ url_for('create_class') }}" class="button" style="font-size: 22px; padding: 8px 18px; margin-bottom: 0;">&#43; Создать класс</a>
+        <a href="{{ url_for('classes.create_class') }}" class="button" style="font-size: 22px; padding: 8px 18px; margin-bottom: 0;">&#43; Создать класс</a>
     {% endif %}
 </div>
 <table>
@@ -12,12 +12,12 @@
         <th>Название</th>
         <th>Описание</th>
     </tr>
-    {% for cl in classes %}
+    {% for class in classes %}
     <tr>
         <td>
-            <a href="{{ url_for('view_class', class_id=cl.id) }}">{{ cl.name }}</a>
+            <a href="{{ url_for('classes.view_class', class_id=class.id) }}">{{ class.name }}</a>
         </td>
-        <td>{{ cl.description }}</td>
+        <td>{{ class.description }}</td>
     </tr>
     {% endfor %}
 </table>

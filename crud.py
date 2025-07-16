@@ -2,28 +2,20 @@
 
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import datetime # Для временных меток комментариев
+from datetime import datetime
 
 db = SQLAlchemy()
 
-# --- Существующая модель User ---
 class User(db.Model):
-    __tablename__ = 'users'
+    __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    password_hash = db.Column(db.String(128), nullable=False)
-
-    # Добавляем связи для удобства доступа:
-    # user.classes_authored будет списком классов, созданных этим пользователем
-    classes_authored = db.relationship('Class', backref='author', lazy=True, foreign_keys='Class.user_id')
-    subclasses_authored = db.relationship('Subclass', backref='author', lazy=True, foreign_keys='Subclass.user_id')
-    comments = db.relationship('Comment', backref='author', lazy=True)
-
-    # Добавляем поля для разрешений на редактирование
-    # Это простой подход. Для более сложной системы можно использовать отдельную таблицу разрешений.
-    # users_with_edit_access = db.relationship('UserEditPermission', back_populates='editor', lazy=True, foreign_keys='UserEditPermission.editor_id')
-    # edits_granted_to_me = db.relationship('UserEditPermission', back_populates='target_user', lazy=True, foreign_keys='UserEditPermission.target_user_id')
-
+    password_hash = db.Column(db.String(120), nullable=False)
+    
+    # Relationships
+    comments = db.relationship('Comment', backref='author', lazy='dynamic', cascade='all, delete-orphan')
+    classes = db.relationship('Class', backref='author', lazy='dynamic', cascade='all, delete-orphan')
+    subclasses = db.relationship('Subclass', backref='author', lazy='dynamic', cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -31,130 +23,79 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    def __repr__(self):
-        return f'<User {self.username}>'
-
-# --- Новые модели ---
-
 class Class(db.Model):
     __tablename__ = 'classes'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Автор класса
+    hit_dice = db.Column(db.String(10), nullable=False)
+    hit_points_first = db.Column(db.String(100), nullable=False)
+    hit_points_next = db.Column(db.String(100), nullable=False)
+    armor_proficiencies = db.Column(db.Text, nullable=False)
+    weapon_proficiencies = db.Column(db.Text, nullable=False)
+    tool_proficiencies = db.Column(db.Text, nullable=False)
+    saving_throws = db.Column(db.String(100), nullable=False)
+    skills = db.Column(db.Text, nullable=False)
+    custom_columns_json = db.Column(db.Text, default='[]')  # Только тут!
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    subclasses = db.relationship('Subclass', backref='parent_class', lazy=True)
-    abilities = db.relationship('Ability', backref='class_owner', lazy=True, cascade="all, delete-orphan", foreign_keys='Ability.class_id')
-    comments = db.relationship('Comment', backref='class_comment_target', lazy=True, cascade="all, delete-orphan", foreign_keys='Comment.class_id')
-
-    # Поле для пользователей, которым разрешено редактировать этот класс
-    # Это будет список ID пользователей, сериализованный в строку
-    editors_allowed_raw = db.Column(db.Text, default='[]')
-
-    # Геттер и сеттер для работы со списком ID
-    @property
-    def editors_allowed(self):
-        import json
-        try:
-            return json.loads(self.editors_allowed_raw)
-        except json.JSONDecodeError:
-            return []
-
-    @editors_allowed.setter
-    def editors_allowed(self, user_ids_list):
-        import json
-        self.editors_allowed_raw = json.dumps(user_ids_list)
-
-    custom_columns_json = db.Column(db.Text, nullable=True)  # <-- добавьте эту строку
-
-    hit_dice = db.Column(db.String(50))
-    hit_points_first = db.Column(db.String(100))
-    hit_points_next = db.Column(db.String(100))
-    armor_proficiencies = db.Column(db.String(200))
-    weapon_proficiencies = db.Column(db.String(200))
-    tool_proficiencies = db.Column(db.String(200))
-    saving_throws = db.Column(db.String(200))
-    skills = db.Column(db.String(200))
-
-    def __repr__(self):
-        return f'<Class {self.name}>'
+    # Relationships
+    abilities = db.relationship('Ability', backref='class_ref', lazy='dynamic', 
+                              primaryjoin="and_(Class.id==Ability.class_id, Ability.parent_id==None)",
+                              cascade='all, delete-orphan')
+    table_rows = db.relationship('ClassTableRow', backref='class_ref', lazy='dynamic',
+                               cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='class_ref', lazy='dynamic',
+                             cascade='all, delete-orphan')
+    subclasses = db.relationship('Subclass', backref='parent_class', lazy='dynamic',
+                               cascade='all, delete-orphan')
 
 class Subclass(db.Model):
-    __tablename__ = 'subclasses'
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False, unique=True)
-    description = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Автор подкласса
-
-    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False) # Привязка к родительскому классу
-
-    abilities = db.relationship('Ability', backref='subclass_owner', lazy=True, cascade="all, delete-orphan", foreign_keys='Ability.subclass_id')
-    comments = db.relationship('Comment', backref='subclass_comment_target', lazy=True, cascade="all, delete-orphan", foreign_keys='Comment.subclass_id')
-
-    # Поле для пользователей, которым разрешено редактировать этот подкласс
-    editors_allowed_raw = db.Column(db.Text, default='[]')
-
-    @property
-    def editors_allowed(self):
-        import json
-        try:
-            return json.loads(self.editors_allowed_raw)
-        except json.JSONDecodeError:
-            return []
-
-    @editors_allowed.setter
-    def editors_allowed(self, user_ids_list):
-        import json
-        self.editors_allowed_raw = json.dumps(user_ids_list)
-
-    def __repr__(self):
-        return f'<Subclass {self.name}>'
-
-class Ability(db.Model):
-    __tablename__ = 'abilities'
+    __tablename__ = 'subclass'
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
-    level = db.Column(db.Integer, nullable=False) # Уровень разблокировки
-    type = db.Column(db.String(50)) # Например, 'active', 'passive', 'feature'
-    parent_id = db.Column(db.Integer, db.ForeignKey('abilities.id'), nullable=True) # Для вложенных способностей
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=True) # Привязка к классу (если это классовая способность)
-    subclass_id = db.Column(db.Integer, db.ForeignKey('subclasses.id'), nullable=True) # Привязка к подклассу (если это подклассовая способность)
+    # Relationships
+    abilities = db.relationship('Ability', backref='subclass_ref', lazy='dynamic',
+                              cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='subclass_ref', lazy='dynamic',
+                             cascade='all, delete-orphan')
 
-    # Вложенные способности
-    children = db.relationship('Ability', backref=db.backref('parent', remote_side=[id]), lazy=True, cascade="all, delete-orphan")
+class Ability(db.Model):
+    __tablename__ = 'ability'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    level = db.Column(db.Integer, nullable=False)
+    type = db.Column(db.String(50), nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'))
+    subclass_id = db.Column(db.Integer, db.ForeignKey('subclass.id'))
+    parent_id = db.Column(db.Integer, db.ForeignKey('ability.id'))
+    custom_table = db.Column(db.JSON)
 
-    def __repr__(self):
-        return f'<Ability {self.name} (Lvl {self.level})>'
+    # Self-referential relationship for nested abilities
+    children = db.relationship('Ability', backref=db.backref('parent', remote_side=[id]),
+                             cascade='all, delete-orphan')
+
+class ClassTableRow(db.Model):
+    __tablename__ = 'class_table_row'
+    id = db.Column(db.Integer, primary_key=True)
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
+    level = db.Column(db.Integer, nullable=False)
+    proficiency_bonus = db.Column(db.Integer, nullable=False)
+    custom = db.Column(db.JSON, default={})  # Значения для кастомных колонок
 
 class Comment(db.Model):
     __tablename__ = 'comments'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Автор комментария
-
-    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=True) # Привязка к классу
-    subclass_id = db.Column(db.Integer, db.ForeignKey('subclasses.id'), nullable=True) # Привязка к подклассу
-
-    # Проверка, что комментарий привязан либо к классу, либо к подклассу
-    __table_args__ = (
-        db.CheckConstraint('(class_id IS NOT NULL AND subclass_id IS NULL) OR (class_id IS NULL AND subclass_id IS NOT NULL)',
-                           name='chk_class_or_subclass_id'),
-    )
-
-    def __repr__(self):
-        return f'<Comment {self.id} by {self.user_id}>'
-
-class ClassTableRow(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'), nullable=False)
-    level = db.Column(db.Integer, nullable=False)
-    proficiency_bonus = db.Column(db.Integer, nullable=False)
-    custom = db.Column(db.JSON, nullable=True)  # Пользовательские поля
-
-    __table_args__ = (db.UniqueConstraint('class_id', 'level', name='_class_level_uc'),)
+    timestamp = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    class_id = db.Column(db.Integer, db.ForeignKey('classes.id'))
+    subclass_id = db.Column(db.Integer, db.ForeignKey('subclass.id'))
 
 # --- Вспомогательные функции для пользователей (существующие) ---
 def create_user(username, password):

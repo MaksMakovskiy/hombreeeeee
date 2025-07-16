@@ -8,9 +8,9 @@
     
     <h3>Действия с аккаунтом:</h3>
     <ul>
-        <li><a href="{{ url_for('update_profile') }}">Изменить пароль</a></li>
+        <li><a href="{{ url_for('profile.update_profile') }}">Изменить пароль</a></li>
         <li>
-            <form action="{{ url_for('delete_profile') }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить свой аккаунт? Это действие необратимо.');">
+            <form action="{{ url_for('profile.delete_profile') }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить свой аккаунт? Это действие необратимо.');">
                 <input type="submit" value="Удалить аккаунт" class="delete-button">
             </form>
         </li>
@@ -20,7 +20,7 @@
     {% if user_classes %}
         <ul>
             {% for cls in user_classes %}
-                <li><a href="{{ url_for('view_class', class_id=cls.id) }}">{{ cls.name }}</a></li>
+                <li><a href="{{ url_for('classes.view_class', class_id=cls.id) }}">{{ cls.name }}</a></li>
             {% endfor %}
         </ul>
     {% else %}
@@ -31,14 +31,14 @@
     {% if user_subclasses %}
         <ul>
             {% for sub in user_subclasses %}
-                <li><a href="{{ url_for('view_subclass', subclass_id=sub.id) }}">{{ sub.name }}</a> (для {{ sub.parent_class.name }})</li>
+                <li><a href="{{ url_for('subclasses.view_subclass', subclass_id=sub.id) }}">{{ sub.name }}</a> (для {{ sub.parent_class.name }})</li>
             {% endfor %}
         </ul>
     {% else %}
         <p>Вы пока не создали ни одного подкласса.</p>
     {% endif %}
 
-    <p><a href="{{ url_for('create_class') }}">Создать новый Класс</a></p>
-    <p><a href="{{ url_for('create_subclass') }}">Создать новый Подкласс</a></p>
+    <p><a href="{{ url_for('classes.create_class') }}">Создать новый Класс</a></p>
+    <p><a href="{{ url_for('subclasses.create_subclass') }}">Создать новый Подкласс</a></p>
 
 {% endblock %}

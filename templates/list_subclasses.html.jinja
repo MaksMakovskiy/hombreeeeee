@@ -3,20 +3,15 @@
 {% block title %}Список Подклассов{% endblock %}
 
 {% block content %}
-    <h2>Доступные Подклассы</h2>
-    {% if subclasses %}
-        <ul>
-            {% for sub in subclasses %}
-                <li>
-                    <a href="{{ url_for('view_subclass', subclass_id=sub.id) }}">{{ sub.name }}</a>
-                    (для <a href="{{ url_for('view_class', class_id=sub.class_id) }}">{{ sub.parent_class.name }}</a>, Автор: {{ sub.author.username }})
-                </li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Пока нет созданных подклассов.</p>
+    <h1>Список подклассов</h1>
+    {% if user %}
+        <a href="{{ url_for('subclasses.create_subclass') }}" class="button">Создать новый подкласс</a>
     {% endif %}
-    {% if g.user %}
-        <p><a href="{{ url_for('create_subclass') }}">Создать новый Подкласс</a></p>
-    {% endif %}
+    
+    {% for subclass in subclasses %}
+        <div class="subclass-item">
+            <h2><a href="{{ url_for('subclasses.view_subclass', subclass_id=subclass.id) }}">{{ subclass.name }}</a></h2>
+            <p>Класс: <a href="{{ url_for('classes.view_class', class_id=subclass.class_id) }}">{{ subclass.parent_class.name }}</a></p>
+        </div>
+    {% endfor %}
 {% endblock %}

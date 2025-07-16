@@ -7,4 +7,14 @@
     <p>Наведите курсор на левый край экрана, чтобы увидеть выезжающую боковую панель.</p>
     <p>Здесь может быть основной контент вашей страницы.</p>
     <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+
+    <div class="buttons">
+        <a href="{{ url_for('classes.list_classes') }}" class="button">Просмотреть классы</a>
+        <a href="{{ url_for('subclasses.list_subclasses') }}" class="button">Просмотреть подклассы</a>
+        {% if user %}
+            <a href="{{ url_for('main.dashboard') }}" class="button">Перейти в личный кабинет</a>
+        {% else %}
+            <a href="{{ url_for('auth.login') }}" class="button">Войти</a>
+        {% endif %}
+    </div>
 {% endblock %}

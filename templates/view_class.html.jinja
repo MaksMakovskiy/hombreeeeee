@@ -1,116 +1,89 @@
 <!-- filepath: c:\Users\Snvok\data\hombreeeeee\templates\view_class.html.jinja -->
 {% extends "base.html.jinja" %}
+
 {% block title %}{{ current_class.name }}{% endblock %}
 {% block content %}
-<h1>{{ current_class.name }}</h1>
-<p>{{ current_class.description }}</p>
+    <h1>{{ current_class.name }}</h1>
+    <p>{{ current_class.description | nl2br }}</p>
 
-<h2>{{ current_class.name }}</h2>
-<p><b>Кость хитов:</b> {{ current_class.hit_dice }}</p>
-<p><b>Хиты на 1 уровне:</b> {{ current_class.hit_points_first }}</p>
-<p><b>Хиты на следующих уровнях:</b> {{ current_class.hit_points_next }}</p>
-<p><b>Доспехи:</b> {{ current_class.armor_proficiencies }}</p>
-<p><b>Оружие:</b> {{ current_class.weapon_proficiencies }}</p>
-<p><b>Инструменты:</b> {{ current_class.tool_proficiencies }}</p>
-<p><b>Спасброски:</b> {{ current_class.saving_throws }}</p>
-<p><b>Навыки:</b> {{ current_class.skills }}</p>
+    <h2>Характеристики класса</h2>
+    <ul>
+        <li>Кость хитов: {{ current_class.hit_dice }}</li>
+        <li>Хиты на 1 уровне: {{ current_class.hit_points_first }}</li>
+        <li>Хиты на следующих уровнях: {{ current_class.hit_points_next }}</li>
+        <li>Владение доспехами: {{ current_class.armor_proficiencies }}</li>
+        <li>Владение оружием: {{ current_class.weapon_proficiencies }}</li>
+        <li>Владение инструментами: {{ current_class.tool_proficiencies }}</li>
+        <li>Спасброски: {{ current_class.saving_throws }}</li>
+        <li>Навыки: {{ current_class.skills }}</li>
+    </ul>
 
-<h3>Классовая таблица</h3>
-<table>
-    <tr>
-        <th>Уровень</th>
-        <th>Бонус мастерства</th>
-        {% for col in custom_columns %}
-            <th>{{ col }}</th>
-        {% endfor %}
-        <th>Способности</th>
-        {% if can_edit %}
-        {% endif %}
-    </tr>
-    {% for row in class_table %}
-    <tr>
-        <td>{{ row.level }}</td>
-        <td>
-            {% if can_edit %}
-                <form method="post" action="{{ url_for('edit_class_table_row', class_id=current_class.id, level=row.level) }}" style="display:inline;">
-                    <input type="number" name="proficiency_bonus" value="{{ row.proficiency_bonus }}" style="width:40px;">
-                    <button type="submit" style="display:none;"></button>
-                </form>
-            {% else %}
-                {{ row.proficiency_bonus }}
-            {% endif %}
-        </td>
-        {% for col in custom_columns %}
-            <td>
-                {% if can_edit %}
-                    <form method="post" action="{{ url_for('edit_class_table_row', class_id=current_class.id, level=row.level) }}" style="display:inline;">
-                        <input type="text" name="custom_{{ col }}" value="{{ row.custom[col] if row.custom and col in row.custom else '' }}" style="width:70px;">
-                        <button type="submit" style="display:none;"></button>
-                    </form>
-                {% else %}
-                    {{ row.custom[col] if row.custom and col in row.custom else '' }}
-                {% endif %}
-            </td>
-        {% endfor %}
-        <td>
-            {% for ab in abilities if ab.level == row.level %}
-                <div>{{ ab.name }}</div>
-            {% endfor %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
-
-{% if can_edit %}
-    <form method="post" action="{{ url_for('add_class_table_column', class_id=current_class.id) }}" style="margin-top:20px;">
-        <input type="text" name="column_name" placeholder="Добавить колонку" required>
-        <button type="submit" class="button">+</button>
-    </form>
-{% endif %}
-
-<h3>Способности</h3>
-{% if abilities %}
+    <h2>Таблица развития класса</h2>
     <table>
         <tr>
-            <th>Название</th>
-            <th>Описание</th>
             <th>Уровень</th>
-            <th>Тип</th>
+            <th>Бонус мастерства</th>
+            {% for col in custom_columns %}
+                <th>{{ col }}</th>
+            {% endfor %}
         </tr>
-        {% for ab in abilities %}
+        {% for row in class_table %}
         <tr>
-            <td>{{ ab.name }}</td>
-            <td>{{ ab.description }}</td>
-            <td>{{ ab.level }}</td>
-            <td>{{ ab.type }}</td>
+            <td>{{ row.level }}</td>
+            <td>+{{ row.proficiency_bonus }}</td>
+            {% for col in custom_columns %}
+                <td>{{ row.custom.get(col, '') }}</td>
+            {% endfor %}
         </tr>
         {% endfor %}
     </table>
-{% else %}
-    <p>Нет способностей.</p>
-{% endif %}
 
-{% if can_edit %}
-    <a href="{{ url_for('edit_class', class_id=current_class.id) }}" class="button">Редактировать</a>
-    <form action="{{ url_for('delete_class', class_id=current_class.id) }}" method="post" style="display:inline;">
-        <button type="submit" class="button delete-button" onclick="return confirm('Удалить класс?')">Удалить</button>
-    </form>
-{% endif %}
+    <h2>Способности класса</h2>
+    {% for ability in abilities %}
+        <div class="ability">
+            <h3>{{ ability.name }} ({{ ability.level }} уровень)</h3>
+            <p>{{ ability.description | nl2br }}</p>
+        </div>
+    {% endfor %}
 
-<h3>Комментарии</h3>
-    {% if current_class.comments %}
-        <ul>
-            {% for comment in current_class.comments %}
-                <li>
-                    <strong>{{ comment.author.username }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):
-                    <p>{{ comment.text }}</p>
-                </li>
-            {% endfor %}
-        </ul>
+    {% if can_edit %}
+        <div class="edit-buttons">
+            <a href="{{ url_for('classes.edit_class', class_id=current_class.id) }}" class="button">Редактировать класс</a>
+            <form action="{{ url_for('classes.delete_class', class_id=current_class.id) }}" method="POST" style="display: inline;">
+                <button type="submit" class="button delete" onclick="return confirm('Вы уверены?')">Удалить класс</button>
+            </form>
+        </div>
     {% endif %}
-<form method="post" action="{{ url_for('add_class_comment', class_id=current_class.id) }}">
-    {{ comment_form.hidden_tag() }}
-    {{ comment_form.text(rows=2, cols=60) }}
-    {{ comment_form.submit(class="button") }}
-</form>
+
+    <h2>Комментарии</h2>
+    {% if user %}
+        <form action="{{ url_for('classes.add_class_comment', class_id=current_class.id) }}" method="POST" class="comment-form">
+            {{ comment_form.csrf_token }}
+            <div class="form-group">
+                {{ comment_form.text.label }}
+                {{ comment_form.text(class="form-control") }}
+            </div>
+            {{ comment_form.submit(class="button") }}
+        </form>
+    {% endif %}
+
+    <div class="comments">
+        {% for comment in current_class.comments %}
+            <div class="comment">
+                <div class="comment-header">
+                    <span class="comment-author">{{ comment.author.username }}</span>
+                    <span class="comment-date">
+                        {% if comment.timestamp %}
+                            {{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                        {% else %}
+                            Дата не указана
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="comment-text">
+                    {{ comment.text | nl2br }}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}

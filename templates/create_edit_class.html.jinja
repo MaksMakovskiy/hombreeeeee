@@ -2,7 +2,7 @@
 {% block title %}{{ 'Редактировать класс' if mode == 'edit' else 'Создать класс' }}{% endblock %}
 {% block content %}
 <h1>{{ 'Редактировать класс' if mode == 'edit' else 'Создать класс' }}</h1>
-<form method="post" id="class-form">
+<form method="post" id="classForm">
     {{ form.hidden_tag() }}
     <p>
         {{ form.name.label }}<br>
@@ -44,50 +44,52 @@
         {{ form.skills.label }}<br>
         {{ form.skills(size=40) }}
     </p>
-    <table>
-    <tr>
-        <th>Уровень</th>
-        <th>Бонус мастерства</th>
-        {% for col in custom_columns %}
-            <th>{{ col }}</th>
-        {% endfor %}
-        <th>Способности</th>
-        {% if can_edit %}
-        {% endif %}
-    </tr>
-    {% for row in class_table %}
-    <tr>
-        <td>{{ row.level }}</td>
-        <td>
-            {% if can_edit %}
-                <form method="post" action="{{ url_for('edit_class_table_row', class_id=current_class.id, level=row.level) }}" style="display:inline;">
-                    <input type="number" name="proficiency_bonus" value="{{ row.proficiency_bonus }}" style="width:40px;">
-                    <button type="submit" style="display:none;"></button>
-                </form>
-            {% else %}
-                {{ row.proficiency_bonus }}
-            {% endif %}
-        </td>
-        {% for col in custom_columns %}
-            <td>
-                {% if can_edit %}
-                    <form method="post" action="{{ url_for('edit_class_table_row', class_id=current_class.id, level=row.level) }}" style="display:inline;">
-                        <input type="text" name="custom_{{ col }}" value="{{ row.custom[col] if row.custom and col in row.custom else '' }}" style="width:70px;">
-                        <button type="submit" style="display:none;"></button>
-                    </form>
-                {% else %}
-                    {{ row.custom[col] if row.custom and col in row.custom else '' }}
-                {% endif %}
-            </td>
-        {% endfor %}
-        <td>
-            {% for ab in abilities if ab.level == row.level %}
-                <div>{{ ab.name }}</div>
+    {% if mode == 'edit' %}
+    <h2>Таблица развития класса</h2>
+    <div class="table-controls" style="display: flex; align-items: center;">
+        <span style="margin-left:auto;">
+            <button type="button" id="addColumnBtn" style="background:none;border:none;font-size:2em;cursor:pointer;" title="Добавить колонку">+</button>
+        </span>
+    </div>
+    
+    <table id="classTable">
+        <thead>
+            <tr>
+                <th>Уровень</th>
+                <th>Бонус мастерства</th>
+                {% for col in custom_columns %}
+                    <th>
+                        <span>{{ col }}</span>
+                        <span class="remove-col" data-col="{{ col }}" style="color:red;cursor:pointer;font-weight:bold;margin-left:5px;">&#10006;</span>
+                    </th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in class_table %}
+            <tr data-level="{{ row.level }}">
+                <td>{{ row.level }}</td>
+                <td>
+                    <input type="number" 
+                           name="proficiency_{{ row.level }}" 
+                           value="{{ row.proficiency_bonus }}"
+                           min="2" max="6">
+                </td>
+                {% for col in custom_columns %}
+                    <td>
+                        <input type="text" 
+                               name="custom_{{ col }}_{{ row.level }}"
+                               value="{{ row.custom.get(col, '') }}">
+                    </td>
+                {% endfor %}
+            </tr>
             {% endfor %}
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+        </tbody>
+    </table>
+    <input type="hidden" name="custom_columns" id="customColumnsData">
+    <input type="hidden" name="table_data" id="tableData">
+    {% endif %}
+
     <h3>Способности</h3>
     <div id="abilities-container"></div>
     <button type="button" id="add-ability-btn" class="button">+ Добавить способность</button>
@@ -95,6 +97,17 @@
     <br><br>
     <input type="submit" value="Сохранить" class="button">
 </form>
+
+<!-- Модалка для ввода названия новой колонки -->
+<div id="columnModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);align-items:center;justify-content:center;">
+    <div style="background:#fff;padding:20px;border-radius:8px;min-width:300px;box-shadow:0 2px 8px #0002;">
+        <label for="modalColumnName">Название новой колонки:</label>
+        <input type="text" id="modalColumnName" style="width:100%;margin-bottom:10px;">
+        <button type="button" id="modalAddBtn" class="button">Добавить</button>
+        <button type="button" id="modalCancelBtn" class="button" style="background:#eee;color:#333;">Отмена</button>
+    </div>
+</div>
+
 <script>
     // filepath: templates/create_edit_class.html.jinja
     // abilities = window.existingAbilities из Jinja
@@ -143,5 +156,101 @@
     };
     // Инициализация
     renderAbilities();
+
+    function getCustomColumns() {
+        const headers = Array.from(document.querySelectorAll('#classTable th')).slice(2);
+        return headers.map(th => th.querySelector('span').textContent.trim());
+    }
+
+    function updateHiddenFields() {
+        const customColumns = getCustomColumns();
+        document.getElementById('customColumnsData').value = JSON.stringify(customColumns);
+        const rows = document.querySelectorAll('#classTable tbody tr');
+        const tableData = Array.from(rows).map(row => {
+            const level = parseInt(row.dataset.level);
+            const profBonus = parseInt(row.querySelector(`input[name="proficiency_${level}"]`).value);
+            const custom = {};
+            customColumns.forEach(col => {
+                const input = row.querySelector(`input[name="custom_${col}_${level}"]`);
+                if (input) {
+                    custom[col] = input.value;
+                }
+            });
+            return { level, proficiency_bonus: profBonus, custom };
+        });
+        document.getElementById('tableData').value = JSON.stringify(tableData);
+    }
+
+    document.getElementById('classForm').onsubmit = function() {
+        updateHiddenFields();
+        return true;
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const table = document.getElementById('classTable');
+        if (table) {
+            table.addEventListener('change', function(e) {
+                if (e.target.tagName === 'INPUT') {
+                    updateHiddenFields();
+                }
+            });
+        }
+        // Модалка для добавления колонки
+        const addBtn = document.getElementById('addColumnBtn');
+        const modal = document.getElementById('columnModal');
+        const modalInput = document.getElementById('modalColumnName');
+        const modalAddBtn = document.getElementById('modalAddBtn');
+        const modalCancelBtn = document.getElementById('modalCancelBtn');
+        addBtn.onclick = function() {
+            modal.style.display = 'flex';
+            modalInput.value = '';
+            modalInput.focus();
+        };
+        modalCancelBtn.onclick = function() {
+            modal.style.display = 'none';
+        };
+        modalAddBtn.onclick = addColumnFromModal;
+        modalInput.onkeydown = function(e) {
+            if (e.key === 'Enter') addColumnFromModal();
+        };
+        function addColumnFromModal() {
+            const name = modalInput.value.trim();
+            if (!name) return;
+            // Проверка на дубликаты
+            if (getCustomColumns().includes(name)) {
+                alert('Колонка с таким именем уже существует');
+                return;
+            }
+            // Добавляем колонку в таблицу
+            const headers = document.querySelector('#classTable thead tr');
+            headers.insertAdjacentHTML('beforeend', `<th><span>${name}</span><span class="remove-col" data-col="${name}" style="color:red;cursor:pointer;font-weight:bold;margin-left:5px;">&#10006;</span></th>`);
+            const rows = document.querySelectorAll('#classTable tbody tr');
+            rows.forEach(row => {
+                const level = row.dataset.level;
+                row.insertAdjacentHTML('beforeend', `
+                    <td>
+                        <input type="text" name="custom_${name}_${level}" value="">
+                    </td>
+                `);
+            });
+            modal.style.display = 'none';
+            updateHiddenFields();
+        }
+        // Удаление колонки на клиенте
+        document.getElementById('classTable').addEventListener('click', function(e) {
+            if (e.target.classList.contains('remove-col')) {
+                const colName = e.target.dataset.col;
+                // Удаляем th
+                e.target.closest('th').remove();
+                // Удаляем td для этой колонки во всех строках
+                const rows = document.querySelectorAll('#classTable tbody tr');
+                rows.forEach(row => {
+                    const inputs = row.querySelectorAll(`input[name^="custom_${colName}_"]`);
+                    inputs.forEach(input => input.closest('td').remove());
+                });
+                updateHiddenFields();
+            }
+        });
+    });
 </script>
 {% endblock %}

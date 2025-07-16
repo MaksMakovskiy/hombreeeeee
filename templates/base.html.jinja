@@ -6,23 +6,21 @@
     <title>{% block title %}Мое Flask Приложение{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-
     <div class="sidebar">
         <!-- Секция 1: Классы и Расы -->
         <div class="sidebar-section">
             <div class="sidebar-title">Классы</div>
             <ul class="sidebar-list">
                 <li>
-                    <a href="{{ url_for('list_classes') }}">Все классы</a>
+                    <a href="{{ url_for('classes.list_classes') }}">Все классы</a>
                     <ul class="sidebar-sublist">
-                        <li><a href="{{ url_for('create_class') }}">Создать класс</a></li>
+                        <li><a href="{{ url_for('classes.create_class') }}">Создать класс</a></li>
                     </ul>
                 </li>
                 <li>
-                    <a href="{{ url_for('list_subclasses') }}">Все подклассы</a>
+                    <a href="{{ url_for('subclasses.list_subclasses') }}">Все подклассы</a>
                     <ul class="sidebar-sublist">
-                        <li><a href="{{ url_for('create_subclass') }}">Создать подкласс</a></li>
+                        <li><a href="{{ url_for('subclasses.create_subclass') }}">Создать подкласс</a></li>
                     </ul>
                 </li>
             </ul>
@@ -36,18 +34,18 @@
             {% if user %}
                 <div class="sidebar-title">Профиль</div>
                 <ul class="sidebar-list">
-                    <li><a href="{{ url_for('dashboard') }}">Мой кабинет</a></li>
-                    <li><a href="{{ url_for('update_profile') }}">Сменить пароль</a></li>
+                    <li><a href="{{ url_for('main.dashboard') }}">Мой кабинет</a></li>
+                    <li><a href="{{ url_for('profile.update_profile') }}">Сменить пароль</a></li>
                     <li>
-                        <form action="{{ url_for('logout') }}" method="get" style="display:inline;">
+                        <form action="{{ url_for('auth.logout') }}" method="get" style="display:inline;">
                             <button type="submit" class="sidebar-link-btn">Выйти</button>
                         </form>
                     </li>
                 </ul>
             {% else %}
                 <ul class="sidebar-list">
-                    <li><a href="{{ url_for('login') }}">Войти</a></li>
-                    <li><a href="{{ url_for('register') }}">Регистрация</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">Войти</a></li>
+                    <li><a href="{{ url_for('auth.register') }}">Регистрация</a></li>
                 </ul>
             {% endif %}
         </div>
