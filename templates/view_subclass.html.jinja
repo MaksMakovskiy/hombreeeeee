@@ -14,7 +14,7 @@
             <form action="{{ url_for('subclasses.delete_subclass', subclass_id=current_subclass.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот подкласс?');">
                 <input type="submit" value="Удалить" class="delete-button">
             </form>
-            <a href="{{ url_for('grant_edit', content_type='subclass', content_id=current_subclass.id) }}" class="button">Выдать права на редактирование</a>
+            <a href="{{ url_for('main.grant_edit', content_type='subclass', content_id=current_subclass.id) }}" class="button">Выдать права на редактирование</a>
         </p>
     {% endif %}
 
@@ -49,8 +49,11 @@
         <ul>
             {% for comment in current_subclass.comments %}
                 <li>
-                    <strong>{{ comment.author.username }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):
-                    <p>{{ comment.text }}</p>
+                    <strong>{{ comment.author.username if comment.author else 'Пользователь удалён' }}</strong>
+                    {% if comment.timestamp %}
+                        ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }})
+                    {% endif %}:
+                    <p>{{ comment.text | nl2br }}</p>
                 </li>
             {% endfor %}
         </ul>
