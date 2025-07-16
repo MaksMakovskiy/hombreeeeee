@@ -6,11 +6,13 @@ from routes import auth_bp, classes_bp, subclasses_bp, profile_bp, main_bp
 from routes.races.routes import races_bp
 from crud import db
 from markupsafe import Markup
+import os
 
 app = Flask(__name__)
 
 app.config['SECRET_KEY'] = 'очень_сложный_секретный_ключ_для_проекта_dnd_2025_07_05'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///site.db'
+db_path = os.path.join(app.instance_path, 'site.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 # Регистрация blueprints
