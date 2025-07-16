@@ -1,0 +1,24 @@
+{% extends "base.html.jinja" %}
+{% block title %}Все классы{% endblock %}
+{% block content %}
+<div style="display: flex; justify-content: space-between; align-items: center;">
+    <h1>Все классы</h1>
+    {% if user %}
+        <a href="{{ url_for('create_class') }}" class="button" style="font-size: 22px; padding: 8px 18px; margin-bottom: 0;">&#43; Создать класс</a>
+    {% endif %}
+</div>
+<table>
+    <tr>
+        <th>Название</th>
+        <th>Описание</th>
+    </tr>
+    {% for cl in classes %}
+    <tr>
+        <td>
+            <a href="{{ url_for('view_class', class_id=cl.id) }}">{{ cl.name }}</a>
+        </td>
+        <td>{{ cl.description }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

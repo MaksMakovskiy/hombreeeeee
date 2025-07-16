@@ -1,0 +1,22 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}Список Подклассов{% endblock %}
+
+{% block content %}
+    <h2>Доступные Подклассы</h2>
+    {% if subclasses %}
+        <ul>
+            {% for sub in subclasses %}
+                <li>
+                    <a href="{{ url_for('view_subclass', subclass_id=sub.id) }}">{{ sub.name }}</a>
+                    (для <a href="{{ url_for('view_class', class_id=sub.class_id) }}">{{ sub.parent_class.name }}</a>, Автор: {{ sub.author.username }})
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Пока нет созданных подклассов.</p>
+    {% endif %}
+    {% if g.user %}
+        <p><a href="{{ url_for('create_subclass') }}">Создать новый Подкласс</a></p>
+    {% endif %}
+{% endblock %}

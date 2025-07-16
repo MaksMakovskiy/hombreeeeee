@@ -1,0 +1,77 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}{{ current_subclass.name }}{% endblock %}
+
+{% block content %}
+    <h2>{{ current_subclass.name }}</h2>
+    <p>Родительский Класс: <a href="{{ url_for('view_class', class_id=current_subclass.class_id) }}">{{ current_subclass.parent_class.name }}</a></p>
+    <p>Автор: <a href="#">{{ current_subclass.author.username }}</a></p>
+    <p>Описание: {{ current_subclass.description | nl2br }}</p>
+
+    {% if g.user and can_edit %}
+        <p>
+            <a href="{{ url_for('edit_subclass', subclass_id=current_subclass.id) }}" class="button">Редактировать</a>
+            <form action="{{ url_for('delete_subclass', subclass_id=current_subclass.id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Вы уверены, что хотите удалить этот подкласс?');">
+                <input type="submit" value="Удалить" class="delete-button">
+            </form>
+            <a href="{{ url_for('grant_edit', content_type='subclass', content_id=current_subclass.id) }}" class="button">Выдать права на редактирование</a>
+        </p>
+    {% endif %}
+
+    <h3>Способности по уровням:</h3>
+    {% if abilities %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Уровень</th>
+                    <th>Название</th>
+                    <th>Тип</th>
+                    <th>Описание</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ab in abilities %}
+                    <tr>
+                        <td>{{ ab.level }}</td>
+                        <td>{{ ab.name }}</td>
+                        <td>{{ ab.type }}</td>
+                        <td>{{ ab.description | nl2br }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>Для этого подкласса пока нет способностей.</p>
+    {% endif %}
+
+    <h3>Комментарии:</h3>
+    {% if current_subclass.comments %}
+        <ul>
+            {% for comment in current_subclass.comments %}
+                <li>
+                    <strong>{{ comment.author.username }}</strong> ({{ comment.timestamp.strftime('%Y-%m-%d %H:%M') }}):
+                    <p>{{ comment.text }}</p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Пока нет комментариев.</p>
+    {% endif %}
+
+    {% if g.user %}
+        <h4>Оставить комментарий:</h4>
+        <form method="POST" action="{{ url_for('add_subclass_comment', subclass_id=current_subclass.id) }}">
+            {{ comment_form.csrf_token }}
+            <p>
+                {{ comment_form.text.label }}<br>
+                {{ comment_form.text(rows=5, cols=40) }}
+                {% for error in comment_form.text.errors %}
+                    <span style="color: red;">[{{ error }}]</span>
+                {% endfor %}
+            </p>
+            <p>{{ comment_form.submit() }}</p>
+        </form>
+    {% else %}
+        <p>Чтобы оставить комментарий, пожалуйста, <a href="{{ url_for('login') }}">войдите в систему</a>.</p>
+    {% endif %}
+{% endblock %}

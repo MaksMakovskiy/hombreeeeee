@@ -1,0 +1,16 @@
+{% extends "base.html.jinja" %}
+{% block title %}Создать расу{% endblock %}
+{% block content %}
+<h1>Создать расу</h1>
+<form method="post">
+    <p>
+        <label for="name">Название:</label>
+        <input type="text" name="name" id="name" required>
+    </p>
+    <p>
+        <label for="description">Описание:</label>
+        <textarea name="description" id="description" required></textarea>
+    </p>
+    <input type="submit" value="Создать" class="button">
+</form>
+{% endblock %}

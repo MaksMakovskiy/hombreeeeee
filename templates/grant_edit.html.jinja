@@ -1,0 +1,33 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}Выдать права на редактирование{% endblock %}
+
+{% block content %}
+    <h2>Выдать права на редактирование для {% if content_type == 'class' %}Класса{% else %}Подкласса{% endif %}: "{{ content_object.name }}"</h2>
+    <p>Вы можете выдать другому пользователю права на редактирование этого контента. Введите имя пользователя, которому хотите выдать права.</p>
+
+    <form method="POST">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.username.label }}<br>
+            {{ form.username(size=32) }}
+            {% for error in form.username.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>{{ form.submit() }}</p>
+    </form>
+    
+    <h3>Текущие редакторы:</h3>
+    {% if content_object.editors_allowed %}
+        <ul>
+            {% for editor_id in content_object.editors_allowed %}
+                <li>{{ get_user_by_id(editor_id).username if get_user_by_id(editor_id) else 'Неизвестный пользователь' }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>Пока нет других пользователей с правами на редактирование.</p>
+    {% endif %}
+
+    <p><a href="{% if content_type == 'class' %}{{ url_for('view_class', class_id=content_object.id) }}{% else %}{{ url_for('view_subclass', subclass_id=content_object.id) }}{% endif %}">Вернуться к просмотру контента</a></p>
+{% endblock %}

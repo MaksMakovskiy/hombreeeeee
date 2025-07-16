@@ -1,0 +1,103 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}{% if mode == 'create' %}Создать Подкласс{% else %}Редактировать Подкласс{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{% if mode == 'create' %}Создать новый Подкласс{% else %}Редактировать Подкласс "{{ content_object.name if content_id else '' }}"{% endif %}</h2>
+    <form method="POST" id="subclass-form">
+        {{ form.csrf_token }}
+        <p>
+            {{ form.name.label }}<br>
+            {{ form.name(size=40) }}
+            {% for error in form.name.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.class_id.label }}<br>
+            {{ form.class_id() }}
+            {% for error in form.class_id.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.description.label }}<br>
+            {{ form.description(rows=10, cols=60) }}
+            {% for error in form.description.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+
+        <h3>Способности:</h3>
+        <div id="abilities-container"></div>
+        <button type="button" id="add-ability-btn">Добавить способность</button>
+        <p>
+            {{ form.abilities_json_field(id="abilities_json_field", type="hidden") }}
+            {% for error in form.abilities_json_field.errors %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+        </p>
+
+        <p>{{ form.submit() }}</p>
+    </form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Скрипт загружен!");
+    // Если есть начальные способности, подставьте их сюда:
+    let abilities = [];
+    // let abilities = {{ existing_abilities_json|safe }}; // если передаете из Flask
+
+    const abilitiesContainer = document.getElementById('abilities-container');
+    const abilitiesJsonField = document.getElementById('abilities_json_field');
+
+    function renderAbilities() {
+        abilitiesContainer.innerHTML = '';
+        abilities.forEach((ab, idx) => {
+            const div = document.createElement('div');
+            div.className = 'ability-item';
+            div.innerHTML = `
+                <label>Название: <input type="text" value="${ab.name || ''}" data-idx="${idx}" data-field="name"></label>
+                <label>Описание: <input type="text" value="${ab.description || ''}" data-idx="${idx}" data-field="description"></label>
+                <label>Уровень: <input type="number" value="${ab.level || 1}" data-idx="${idx}" data-field="level"></label>
+                <label>Тип: <input type="text" value="${ab.type || ''}" data-idx="${idx}" data-field="type"></label>
+                <button type="button" class="remove-ability-btn" data-idx="${idx}">Удалить</button>
+            `;
+            abilitiesContainer.appendChild(div);
+        });
+        // События для удаления
+        abilitiesContainer.querySelectorAll('.remove-ability-btn').forEach(btn => {
+            btn.onclick = function() {
+                const idx = +btn.getAttribute('data-idx');
+                abilities.splice(idx, 1);
+                renderAbilities();
+                updateAbilitiesField();
+            }
+        });
+        // События для изменения
+        abilitiesContainer.querySelectorAll('input').forEach(inp => {
+            inp.oninput = function() {
+                const idx = +inp.getAttribute('data-idx');
+                const field = inp.getAttribute('data-field');
+                abilities[idx][field] = inp.value;
+                updateAbilitiesField();
+            }
+        });
+        updateAbilitiesField();
+    }
+    function updateAbilitiesField() {
+        abilitiesJsonField.value = JSON.stringify(abilities);
+    }
+
+    document.getElementById('add-ability-btn').onclick = function() {
+        console.log("Кнопка нажата!");
+        abilities.push({name: '', description: '', level: 1, type: ''});
+        renderAbilities();
+    };
+
+    renderAbilities();
+});
+</script>
+{% endblock %}

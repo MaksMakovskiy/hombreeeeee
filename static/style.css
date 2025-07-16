@@ -1,0 +1,338 @@
+/* Общие стили для body */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow-x: hidden; /* Скрывает горизонтальный скролл при выезде панели */
+    background-color: #f4f4f4; /* Легкий фон */
+    color: #333;
+}
+
+/* Стили для боковой панели */
+.sidebar {
+    height: 100%;
+    width: 250px;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0; /* Всегда видна */
+    background-color: #333;
+    overflow-x: hidden;
+    padding-top: 60px;
+    transition: none; /* Убираем анимацию */
+    box-shadow: 2px 0 5px rgba(0,0,0,0.5); /* Небольшая тень */
+}
+
+/* Стили для ссылок в боковой панели */
+.sidebar a {
+    padding: 15px 25px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    transition: 0.3s;
+}
+
+/* Стили при наведении на ссылки в панели */
+.sidebar a:hover {
+    color: #f1f1f1;
+    background-color: #555;
+}
+
+/* Заголовок в боковой панели */
+.sidebar h2 {
+    color: white;
+    text-align: center;
+    margin-bottom: 20px;
+    position: absolute;
+    top: 15px;
+    width: 100%;
+}
+
+/* Список в боковой панели */
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* --- Новые стили для секций боковой панели --- */
+.sidebar-section {
+    margin-bottom: 40px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #444;
+}
+
+.sidebar-section-bottom {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    border-bottom: none;
+    border-top: 1px solid #444;
+    background: #333;
+    padding-top: 10px;
+}
+
+.sidebar-title {
+    color: #fff;
+    font-weight: bold;
+    margin-left: 20px;
+    margin-bottom: 8px;
+    margin-top: 10px;
+    font-size: 1.1em;
+}
+
+.sidebar-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.sidebar-list > li {
+    margin: 0 0 5px 0;
+}
+
+.sidebar-list > li > a {
+    color: #ccc;
+    text-decoration: none;
+    padding: 8px 20px;
+    display: block;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.sidebar-list > li > a:hover {
+    background: #444;
+    color: #fff;
+}
+
+.sidebar-sublist {
+    list-style: none;
+    padding-left: 20px;
+    margin: 0;
+}
+
+.sidebar-sublist li a {
+    color: #aaa;
+    font-size: 0.95em;
+    padding: 4px 0 4px 10px;
+    display: block;
+}
+
+.sidebar-link-btn {
+    background: none;
+    border: none;
+    color: #ccc;
+    padding: 8px 20px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    font: inherit;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.sidebar-link-btn:hover {
+    background: #444;
+    color: #fff;
+}
+
+/* Стили для основной области контента */
+.content {
+    margin-left: 250px; /* Всегда сдвинута */
+    padding: 20px;
+    transition: none;
+    max-width: 900px; /* Увеличил ширину контента */
+    margin-right: auto; /* Центрируем контент */
+    margin-left: auto; /* Центрируем контент */
+    background-color: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    min-height: 100vh; /* Минимальная высота, чтобы футер был внизу */
+    box-sizing: border-box; /* Включаем padding в ширину/высоту */
+}
+
+/* Медиа-запросы для адаптивности (опционально) */
+@media screen and (max-height: 450px) {
+    .sidebar {padding-top: 15px;}
+    .sidebar a {font-size: 16px;}
+}
+
+/* --- Стили для форм --- */
+form p {
+    margin-bottom: 15px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="password"],
+form textarea,
+form select,
+form input[type="number"] { /* Добавил number */
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box; /* Учитываем padding в ширине */
+}
+
+form input[type="submit"],
+.button { /* Добавил .button */
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    text-decoration: none; /* Для .button */
+    display: inline-block; /* Для .button */
+    margin-right: 10px; /* Отступ между кнопками */
+}
+
+form input[type="submit"]:hover,
+.button:hover {
+    background-color: #0056b3;
+}
+
+.delete-button {
+    background-color: #dc3545 !important; /* Красная кнопка для удаления */
+}
+
+.delete-button:hover {
+    background-color: #c82333 !important;
+}
+
+/* --- Стили для flash-сообщений --- */
+.flashes {
+    list-style-type: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.flashes li {
+    padding: 10px 15px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.flashes .success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flashes .danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.flashes .info {
+    background-color: #d1ecf1;
+    color: #0c5460;
+    border: 1px solid #bee5eb;
+}
+
+/* --- Стили для динамических полей способностей --- */
+#abilities-container {
+    border: 1px solid #eee;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #fdfdfd;
+    border-radius: 5px;
+}
+
+.ability-item {
+    margin-bottom: 15px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    background-color: #fff;
+}
+
+.ability-item h4 {
+    margin-top: 0;
+    color: #007bff;
+}
+
+.ability-item label {
+    font-weight: normal;
+    margin-bottom: 3px;
+}
+
+.ability-item input[type="text"],
+.ability-item input[type="number"],
+.ability-item select,
+.ability-item textarea {
+    margin-bottom: 10px;
+}
+
+.remove-ability-btn {
+    background-color: #6c757d; /* Серый цвет для кнопок "Удалить способность" */
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    margin-top: 5px;
+}
+
+.remove-ability-btn:hover {
+    background-color: #5a6268;
+}
+
+#add-ability-btn {
+    background-color: #28a745; /* Зеленая кнопка "Добавить способность" */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    margin-top: 10px;
+}
+
+#add-ability-btn:hover {
+    background-color: #218838;
+}
+
+/* --- Стили для таблиц (способности) --- */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+}
+
+table th, table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+table th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+}
+
+table tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+table tr:hover {
+    background-color: #f1f1f1;
+}
+
+/* Стили для ссылок-кнопок */
+a.button {
+    margin-bottom: 10px;
+}

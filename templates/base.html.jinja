@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Мое Flask Приложение{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="sidebar">
+        <!-- Секция 1: Классы и Расы -->
+        <div class="sidebar-section">
+            <div class="sidebar-title">Классы</div>
+            <ul class="sidebar-list">
+                <li>
+                    <a href="{{ url_for('list_classes') }}">Все классы</a>
+                    <ul class="sidebar-sublist">
+                        <li><a href="{{ url_for('create_class') }}">Создать класс</a></li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="{{ url_for('list_subclasses') }}">Все подклассы</a>
+                    <ul class="sidebar-sublist">
+                        <li><a href="{{ url_for('create_subclass') }}">Создать подкласс</a></li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="sidebar-title">Расы</div>
+            <ul class="sidebar-list">
+                <li><a href="#">(Раздел для рас — реализуйте позже)</a></li>
+            </ul>
+        </div>
+        <!-- Секция 2: Профиль и выход -->
+        <div class="sidebar-section sidebar-section-bottom">
+            {% if user %}
+                <div class="sidebar-title">Профиль</div>
+                <ul class="sidebar-list">
+                    <li><a href="{{ url_for('dashboard') }}">Мой кабинет</a></li>
+                    <li><a href="{{ url_for('update_profile') }}">Сменить пароль</a></li>
+                    <li>
+                        <form action="{{ url_for('logout') }}" method="get" style="display:inline;">
+                            <button type="submit" class="sidebar-link-btn">Выйти</button>
+                        </form>
+                    </li>
+                </ul>
+            {% else %}
+                <ul class="sidebar-list">
+                    <li><a href="{{ url_for('login') }}">Войти</a></li>
+                    <li><a href="{{ url_for('register') }}">Регистрация</a></li>
+                </ul>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="content">
+        {# Отображение flash-сообщений #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li class="{{ category }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        {# Основной контент страницы будет здесь #}
+        {% block content %}{% endblock %}
+    </div>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

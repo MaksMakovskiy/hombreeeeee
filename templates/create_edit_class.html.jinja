@@ -1,0 +1,147 @@
+{% extends "base.html.jinja" %}
+{% block title %}{{ 'Редактировать класс' if mode == 'edit' else 'Создать класс' }}{% endblock %}
+{% block content %}
+<h1>{{ 'Редактировать класс' if mode == 'edit' else 'Создать класс' }}</h1>
+<form method="post" id="class-form">
+    {{ form.hidden_tag() }}
+    <p>
+        {{ form.name.label }}<br>
+        {{ form.name(size=40) }}
+    </p>
+    <p>
+        {{ form.description.label }}<br>
+        {{ form.description(rows=3, cols=40) }}
+    </p>
+    <p>
+        {{ form.hit_dice.label }}<br>
+        {{ form.hit_dice(size=40) }}
+    </p>
+    <p>
+        {{ form.hit_points_first.label }}<br>
+        {{ form.hit_points_first(size=40) }}
+    </p>
+    <p>
+        {{ form.hit_points_next.label }}<br>
+        {{ form.hit_points_next(size=40) }}
+    </p>
+    <p>
+        {{ form.armor_proficiencies.label }}<br>
+        {{ form.armor_proficiencies(size=40) }}
+    </p>
+    <p>
+        {{ form.weapon_proficiencies.label }}<br>
+        {{ form.weapon_proficiencies(size=40) }}
+    </p>
+    <p>
+        {{ form.tool_proficiencies.label }}<br>
+        {{ form.tool_proficiencies(size=40) }}
+    </p>
+    <p>
+        {{ form.saving_throws.label }}<br>
+        {{ form.saving_throws(size=40) }}
+    </p>
+    <p>
+        {{ form.skills.label }}<br>
+        {{ form.skills(size=40) }}
+    </p>
+    <table>
+    <tr>
+        <th>Уровень</th>
+        <th>Бонус мастерства</th>
+        {% for col in custom_columns %}
+            <th>{{ col }}</th>
+        {% endfor %}
+        <th>Способности</th>
+        {% if can_edit %}
+        {% endif %}
+    </tr>
+    {% for row in class_table %}
+    <tr>
+        <td>{{ row.level }}</td>
+        <td>
+            {% if can_edit %}
+                <form method="post" action="{{ url_for('edit_class_table_row', class_id=current_class.id, level=row.level) }}" style="display:inline;">
+                    <input type="number" name="proficiency_bonus" value="{{ row.proficiency_bonus }}" style="width:40px;">
+                    <button type="submit" style="display:none;"></button>
+                </form>
+            {% else %}
+                {{ row.proficiency_bonus }}
+            {% endif %}
+        </td>
+        {% for col in custom_columns %}
+            <td>
+                {% if can_edit %}
+                    <form method="post" action="{{ url_for('edit_class_table_row', class_id=current_class.id, level=row.level) }}" style="display:inline;">
+                        <input type="text" name="custom_{{ col }}" value="{{ row.custom[col] if row.custom and col in row.custom else '' }}" style="width:70px;">
+                        <button type="submit" style="display:none;"></button>
+                    </form>
+                {% else %}
+                    {{ row.custom[col] if row.custom and col in row.custom else '' }}
+                {% endif %}
+            </td>
+        {% endfor %}
+        <td>
+            {% for ab in abilities if ab.level == row.level %}
+                <div>{{ ab.name }}</div>
+            {% endfor %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+    <h3>Способности</h3>
+    <div id="abilities-container"></div>
+    <button type="button" id="add-ability-btn" class="button">+ Добавить способность</button>
+    {{ form.abilities_json_field(id="abilities_json_field") }}
+    <br><br>
+    <input type="submit" value="Сохранить" class="button">
+</form>
+<script>
+    // filepath: templates/create_edit_class.html.jinja
+    // abilities = window.existingAbilities из Jinja
+    let abilities = {{ existing_abilities_json|safe }};
+    function renderAbilities() {
+        const container = document.getElementById('abilities-container');
+        container.innerHTML = '';
+        abilities.forEach((ab, idx) => {
+            const div = document.createElement('div');
+            div.className = 'ability-item';
+            div.innerHTML = `
+                <label>Название: <input type="text" value="${ab.name || ''}" data-idx="${idx}" data-field="name"></label>
+                <label>Описание: <input type="text" value="${ab.description || ''}" data-idx="${idx}" data-field="description"></label>
+                <label>Уровень: <input type="number" value="${ab.level || 1}" data-idx="${idx}" data-field="level"></label>
+                <label>Тип: <input type="text" value="${ab.type || ''}" data-idx="${idx}" data-field="type"></label>
+                <button type="button" class="remove-ability-btn" data-idx="${idx}">Удалить</button>
+            `;
+            container.appendChild(div);
+        });
+        // События для удаления
+        document.querySelectorAll('.remove-ability-btn').forEach(btn => {
+            btn.onclick = function() {
+                const idx = +btn.getAttribute('data-idx');
+                abilities.splice(idx, 1);
+                renderAbilities();
+                updateAbilitiesField();
+            }
+        });
+        // События для изменения
+        container.querySelectorAll('input').forEach(inp => {
+            inp.oninput = function() {
+                const idx = +inp.getAttribute('data-idx');
+                const field = inp.getAttribute('data-field');
+                abilities[idx][field] = inp.value;
+                updateAbilitiesField();
+            }
+        });
+        updateAbilitiesField();
+    }
+    function updateAbilitiesField() {
+        document.getElementById('abilities_json_field').value = JSON.stringify(abilities);
+    }
+    document.getElementById('add-ability-btn').onclick = function() {
+        abilities.push({name: '', description: '', level: 1, type: ''});
+        renderAbilities();
+    };
+    // Инициализация
+    renderAbilities();
+</script>
+{% endblock %}
