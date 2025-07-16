@@ -10,6 +10,9 @@ import os
 
 app = Flask(__name__)
 
+# Создаём instance-папку, если её нет
+os.makedirs(app.instance_path, exist_ok=True)
+
 app.config['SECRET_KEY'] = 'очень_сложный_секретный_ключ_для_проекта_dnd_2025_07_05'
 db_path = os.path.join(app.instance_path, 'site.db')
 app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
