@@ -62,4 +62,4 @@ def login():
 def logout():
     session.pop('user_id', None)
     flash('Вы вышли из системы.', 'info')
-    return redirect(url_for('index'))
+    return redirect(url_for('main.index'))
