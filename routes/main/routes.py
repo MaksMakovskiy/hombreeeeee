@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, g, request, flash, session
-from crud import db, Class, Subclass, User
+from crud import db, Class, Subclass, User, Race, Food
 from utils.decorators import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
@@ -33,6 +33,10 @@ def grant_edit(content_type, content_id):
         obj = Class.query.get_or_404(content_id)
     elif content_type == "subclass":
         obj = Subclass.query.get_or_404(content_id)
+    elif content_type == "race":
+        obj = Race.query.get_or_404(content_id)
+    elif content_type == "food":
+        obj = Food.query.get_or_404(content_id)
     else:
         flash("Тип контента не поддерживается.", "danger")
         return redirect(url_for('main.index'))
@@ -44,15 +48,15 @@ def grant_edit(content_type, content_id):
         if not user:
             flash("Пользователь не найден.", "danger")
         else:
-            # Пример: добавляем user_id в список редакторов (реализуйте хранение прав в модели)
-            if not hasattr(obj, "editors"):
-                obj.editors = []
-            if user.id not in obj.editors:
-                obj.editors.append(user.id)
-                # Сохраните editors в БД, например, как JSON-строку
-                obj.editors_json = json.dumps(obj.editors)
+            # Используем правильное поле editors_allowed
+            if not obj.editors_allowed:
+                obj.editors_allowed = []
+            if user.id not in obj.editors_allowed:
+                obj.editors_allowed.append(user.id)
                 db.session.commit()
-            flash(f"Права на редактирование выданы пользователю {username}.", "success")
+                flash(f"Права на редактирование выданы пользователю {username}.", "success")
+            else:
+                flash(f"Пользователь {username} уже имеет права на редактирование.", "info")
         return redirect(request.url)
 
     return render_template(
