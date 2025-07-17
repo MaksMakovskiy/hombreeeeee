@@ -1,0 +1,370 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}Профиль {{ viewed_user.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style_base.css') }}">
+<style>
+.profile-tabs-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #8b4513;
+    border-radius: 20px;
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.8),
+        inset 0 2px 12px rgba(205, 133, 63, 0.1);
+    overflow: hidden;
+}
+
+.tabs-header {
+    display: flex;
+    background: linear-gradient(180deg, #3a2e1e 80%, #2a2a2a 100%);
+    border-bottom: 2px solid #8b4513;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 1.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    color: #ffe082;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+}
+
+.tab-button:hover {
+    background: linear-gradient(90deg, rgba(205, 133, 63, 0.1) 0%, rgba(255, 224, 130, 0.1) 100%);
+    color: #ffe082;
+    text-shadow: 0 0 8px rgba(255, 224, 130, 0.6);
+}
+
+.tab-button.active {
+    background: linear-gradient(90deg, #ffe082 60%, #e7b96a 100%);
+    color: #232323;
+    border-bottom-color: #daa520;
+    text-shadow: none;
+    box-shadow: 0 2px 12px rgba(255, 224, 130, 0.4);
+}
+
+.tab-content {
+    display: none;
+    padding: 2.5rem;
+    background: #181818;
+    color: #f3e7c6;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.search-container {
+    margin-bottom: 1.5rem;
+}
+
+.search-input {
+    width: 100%;
+    padding: 1rem 1.5rem;
+    background: linear-gradient(135deg, #1a1a1a 0%, #232323 100%);
+    border: 2px solid #8b4513;
+    border-radius: 25px;
+    color: #ffe082;
+    font-size: 1rem;
+    font-family: 'Cinzel', serif;
+    transition: all 0.3s ease;
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #ffe082;
+    box-shadow: 0 0 0 0.3rem rgba(255, 224, 130, 0.25), 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 1px solid #8b4513;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.item:hover {
+    background: linear-gradient(135deg, #2a2a2a 0%, #3a2e1e 100%);
+    border-color: #cd853f;
+    transform: translateX(10px);
+    box-shadow: 0 4px 16px rgba(205, 133, 63, 0.3);
+}
+
+.item a {
+    color: #ffe082;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    font-family: 'Cinzel', serif;
+    transition: color 0.3s ease;
+}
+
+.item a:hover {
+    color: #daa520;
+    text-shadow: 0 0 8px rgba(218, 165, 32, 0.6);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 3rem;
+    color: #cd853f;
+}
+
+.empty-state i {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.6;
+}
+
+.empty-state h3 {
+    margin: 0 0 0.5rem 0;
+    font-family: 'Cinzel', serif;
+    color: #ffe082;
+}
+
+.empty-state p {
+    margin: 0;
+    opacity: 0.8;
+}
+
+.item-count {
+    background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+    color: #ffe082;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.4);
+}
+
+.subclass-info {
+    color: #cd853f;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+.user-info {
+    text-align: center;
+    padding: 2rem;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #8b4513;
+    border-radius: 20px;
+    margin-bottom: 2rem;
+}
+
+.user-info h1 {
+    color: #ffe082;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 0.5rem;
+}
+
+.user-info p {
+    color: #cd853f;
+    margin: 0;
+}
+
+.back-link {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+    color: #ffe082;
+    text-decoration: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    transition: all 0.3s ease;
+    margin-bottom: 2rem;
+}
+
+.back-link:hover {
+    background: linear-gradient(135deg, #cd853f 0%, #8b4513 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="main-content">
+    <div class="auth-container">
+        <a href="{{ url_for('profile.view_profile') }}" class="back-link">← Назад к вашему профилю</a>
+        
+        <div class="user-info">
+            <h1>👤 Профиль пользователя {{ viewed_user.username }}</h1>
+            <p>Просмотр созданного контента</p>
+        </div>
+    </div>
+
+    <div class="profile-tabs-container">
+        <div class="tabs-header">
+            <button class="tab-button active" onclick="openTab(event, 'classes')">
+                ⚔️ Классы <span class="item-count">{{ user_classes|length }}</span>
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'subclasses')">
+                🎯 Подклассы <span class="item-count">{{ user_subclasses|length }}</span>
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'races')">
+                🧝 Расы <span class="item-count">{{ user_races|length }}</span>
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'foods')">
+                🍖 Еда <span class="item-count">{{ user_foods|length }}</span>
+            </button>
+        </div>
+
+        <!-- Классы -->
+        <div id="classes" class="tab-content active">
+            {% if user_classes %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск классов..." 
+                           oninput="filterItems(this.value, 'classes-list')">
+                </div>
+                <ul id="classes-list" class="items-list">
+                    {% for class in user_classes %}
+                        <li class="item" data-name="{{ class.name|lower }}">
+                            <a href="{{ url_for('classes.view_class', class_id=class.id) }}">{{ class.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>⚔️</i>
+                    <h3>Нет созданных классов</h3>
+                    <p>Этот пользователь пока не создал ни одного класса</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Подклассы -->
+        <div id="subclasses" class="tab-content">
+            {% if user_subclasses %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск подклассов..." 
+                           oninput="filterItems(this.value, 'subclasses-list')">
+                </div>
+                <ul id="subclasses-list" class="items-list">
+                    {% for subclass in user_subclasses %}
+                        <li class="item" data-name="{{ subclass.name|lower }} {{ subclass.parent_class.name|lower }}">
+                            <a href="{{ url_for('subclasses.view_subclass', subclass_id=subclass.id) }}">
+                                {{ subclass.name }}
+                            </a>
+                            <span class="subclass-info">({{ subclass.parent_class.name }})</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>🎯</i>
+                    <h3>Нет созданных подклассов</h3>
+                    <p>Этот пользователь пока не создал ни одного подкласса</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Расы -->
+        <div id="races" class="tab-content">
+            {% if user_races %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск рас..." 
+                           oninput="filterItems(this.value, 'races-list')">
+                </div>
+                <ul id="races-list" class="items-list">
+                    {% for race in user_races %}
+                        <li class="item" data-name="{{ race.name|lower }}">
+                            <a href="{{ url_for('races.view_race', race_id=race.id) }}">{{ race.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>🧝</i>
+                    <h3>Нет созданных рас</h3>
+                    <p>Этот пользователь пока не создал ни одной расы</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Еда -->
+        <div id="foods" class="tab-content">
+            {% if user_foods %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск еды..." 
+                           oninput="filterItems(this.value, 'foods-list')">
+                </div>
+                <ul id="foods-list" class="items-list">
+                    {% for food in user_foods %}
+                        <li class="item" data-name="{{ food.name|lower }}">
+                            <a href="{{ url_for('food.view_food', food_id=food.id) }}">{{ food.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>🍖</i>
+                    <h3>Нет созданной еды</h3>
+                    <p>Этот пользователь пока не создал ни одного рецепта</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openTab(evt, tabName) {
+    // Скрываем все вкладки
+    var tabContents = document.getElementsByClassName("tab-content");
+    for (var i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+    }
+    
+    // Убираем активный класс со всех кнопок
+    var tabButtons = document.getElementsByClassName("tab-button");
+    for (var i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active");
+    }
+    
+    // Показываем выбранную вкладку и делаем кнопку активной
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
+}
+
+function filterItems(searchText, listId) {
+    const items = document.querySelectorAll(`#${listId} .item`);
+    const search = searchText.toLowerCase().trim();
+    
+    items.forEach(item => {
+        const name = item.getAttribute('data-name');
+        if (name.includes(search)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

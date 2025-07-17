@@ -187,6 +187,46 @@
     font-style: italic;
 }
 
+.section-header {
+    background: none !important;
+    border: none !important;
+    padding: 1rem 0 0.5rem 0 !important;
+    margin: 1rem 0 0.5rem 0 !important;
+    border-bottom: 2px solid #8b4513 !important;
+}
+
+.section-header h4 {
+    color: #ffe082;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.owner-badge, .editor-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 0.5rem;
+}
+
+.owner-badge {
+    background: linear-gradient(135deg, #daa520 0%, #b8860b 100%);
+    color: #1a1a1a;
+    box-shadow: 0 2px 4px rgba(218, 165, 32, 0.3);
+}
+
+.editor-badge {
+    background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+    color: #ffe082;
+    box-shadow: 0 2px 4px rgba(139, 69, 19, 0.3);
+}
+
 /* Анимация появления */
 .tab-content.active {
     animation: fadeInUp 0.4s ease;
@@ -228,6 +268,22 @@
 
 {% block content %}
 <div class="main-content">
+    <!-- Поиск профилей пользователей -->
+    <div class="auth-container" style="margin-bottom: 2rem;">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h2 class="auth-title">🔍 Поиск профилей пользователей</h2>
+                <p class="auth-subtitle">Найдите профиль другого пользователя</p>
+            </div>
+            <div class="search-form">
+                <div class="form-group">
+                    <input type="text" id="userSearch" placeholder="Введите имя пользователя..." class="form-control">
+                    <button onclick="searchUser()" class="button" style="margin-top: 1rem;">Найти профиль</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="auth-container">
         <div class="auth-card">
             <div class="auth-header">
@@ -261,110 +317,181 @@
     <div class="profile-tabs-container">
         <div class="tabs-header">
             <button class="tab-button active" onclick="openTab(event, 'classes')">
-                ⚔️ Классы <span class="item-count">{{ editable_classes|length }}</span>
+                ⚔️ Классы <span class="item-count">{{ (user_classes|length + editable_classes|length) }}</span>
             </button>
             <button class="tab-button" onclick="openTab(event, 'subclasses')">
-                🎯 Подклассы <span class="item-count">{{ editable_subclasses|length }}</span>
+                🎯 Подклассы <span class="item-count">{{ (user_subclasses|length + editable_subclasses|length) }}</span>
             </button>
             <button class="tab-button" onclick="openTab(event, 'races')">
-                🧝 Расы <span class="item-count">{{ editable_races|length }}</span>
+                🧝 Расы <span class="item-count">{{ (user_races|length + editable_races|length) }}</span>
             </button>
             <button class="tab-button" onclick="openTab(event, 'foods')">
-                🍖 Еда <span class="item-count">{{ editable_foods|length }}</span>
+                🍖 Еда <span class="item-count">{{ (user_foods|length + editable_foods|length) }}</span>
             </button>
         </div>
 
         <!-- Классы -->
         <div id="classes" class="tab-content active">
-            {% if editable_classes %}
+            {% if user_classes or editable_classes %}
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="🔍 Поиск классов..." 
                            oninput="filterItems(this.value, 'classes-list')">
                 </div>
                 <ul id="classes-list" class="items-list">
-                    {% for class in editable_classes %}
-                        <li class="item" data-name="{{ class.name|lower }}">
-                            <a href="{{ url_for('classes.edit_class', class_id=class.id) }}">{{ class.name }}</a>
+                    {% if user_classes %}
+                        <li class="section-header">
+                            <h4>📋 Ваши классы</h4>
                         </li>
-                    {% endfor %}
+                        {% for class in user_classes %}
+                            <li class="item" data-name="{{ class.name|lower }}">
+                                <a href="{{ url_for('classes.edit_class', class_id=class.id) }}">{{ class.name }}</a>
+                                <span class="owner-badge">Владелец</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if editable_classes %}
+                        <li class="section-header">
+                            <h4>✏️ Доступны для редактирования</h4>
+                        </li>
+                        {% for class in editable_classes %}
+                            <li class="item" data-name="{{ class.name|lower }}">
+                                <a href="{{ url_for('classes.edit_class', class_id=class.id) }}">{{ class.name }}</a>
+                                <span class="editor-badge">Редактор</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
                 </ul>
             {% else %}
                 <div class="empty-state">
                     <i>⚔️</i>
                     <h3>Нет доступных классов</h3>
-                    <p>У вас нет прав на редактирование классов</p>
+                    <p>У вас нет созданных классов и прав на редактирование других классов</p>
                 </div>
             {% endif %}
         </div>
 
         <!-- Подклассы -->
         <div id="subclasses" class="tab-content">
-            {% if editable_subclasses %}
+            {% if user_subclasses or editable_subclasses %}
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="🔍 Поиск подклассов..." 
                            oninput="filterItems(this.value, 'subclasses-list')">
                 </div>
                 <ul id="subclasses-list" class="items-list">
-                    {% for subclass in editable_subclasses %}
-                        <li class="item" data-name="{{ subclass.name|lower }} {{ subclass.parent_class.name|lower }}">
-                            <a href="{{ url_for('subclasses.edit_subclass', subclass_id=subclass.id) }}">
-                                {{ subclass.name }}
-                            </a>
-                            <span class="subclass-info">({{ subclass.parent_class.name }})</span>
+                    {% if user_subclasses %}
+                        <li class="section-header">
+                            <h4>📋 Ваши подклассы</h4>
                         </li>
-                    {% endfor %}
+                        {% for subclass in user_subclasses %}
+                            <li class="item" data-name="{{ subclass.name|lower }} {{ subclass.parent_class.name|lower }}">
+                                <a href="{{ url_for('subclasses.edit_subclass', subclass_id=subclass.id) }}">
+                                    {{ subclass.name }}
+                                </a>
+                                <span class="subclass-info">({{ subclass.parent_class.name }})</span>
+                                <span class="owner-badge">Владелец</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if editable_subclasses %}
+                        <li class="section-header">
+                            <h4>✏️ Доступны для редактирования</h4>
+                        </li>
+                        {% for subclass in editable_subclasses %}
+                            <li class="item" data-name="{{ subclass.name|lower }} {{ subclass.parent_class.name|lower }}">
+                                <a href="{{ url_for('subclasses.edit_subclass', subclass_id=subclass.id) }}">
+                                    {{ subclass.name }}
+                                </a>
+                                <span class="subclass-info">({{ subclass.parent_class.name }})</span>
+                                <span class="editor-badge">Редактор</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
                 </ul>
             {% else %}
                 <div class="empty-state">
                     <i>🎯</i>
                     <h3>Нет доступных подклассов</h3>
-                    <p>У вас нет прав на редактирование подклассов</p>
+                    <p>У вас нет созданных подклассов и прав на редактирование других подклассов</p>
                 </div>
             {% endif %}
         </div>
 
         <!-- Расы -->
         <div id="races" class="tab-content">
-            {% if editable_races %}
+            {% if user_races or editable_races %}
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="🔍 Поиск рас..." 
                            oninput="filterItems(this.value, 'races-list')">
                 </div>
                 <ul id="races-list" class="items-list">
-                    {% for race in editable_races %}
-                        <li class="item" data-name="{{ race.name|lower }}">
-                            <a href="{{ url_for('races.edit_race', race_id=race.id) }}">{{ race.name }}</a>
+                    {% if user_races %}
+                        <li class="section-header">
+                            <h4>📋 Ваши расы</h4>
                         </li>
-                    {% endfor %}
+                        {% for race in user_races %}
+                            <li class="item" data-name="{{ race.name|lower }}">
+                                <a href="{{ url_for('races.edit_race', race_id=race.id) }}">{{ race.name }}</a>
+                                <span class="owner-badge">Владелец</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if editable_races %}
+                        <li class="section-header">
+                            <h4>✏️ Доступны для редактирования</h4>
+                        </li>
+                        {% for race in editable_races %}
+                            <li class="item" data-name="{{ race.name|lower }}">
+                                <a href="{{ url_for('races.edit_race', race_id=race.id) }}">{{ race.name }}</a>
+                                <span class="editor-badge">Редактор</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
                 </ul>
             {% else %}
                 <div class="empty-state">
                     <i>🧝</i>
                     <h3>Нет доступных рас</h3>
-                    <p>У вас нет прав на редактирование рас</p>
+                    <p>У вас нет созданных рас и прав на редактирование других рас</p>
                 </div>
             {% endif %}
         </div>
 
         <!-- Еда -->
         <div id="foods" class="tab-content">
-            {% if editable_foods %}
+            {% if user_foods or editable_foods %}
                 <div class="search-container">
                     <input type="text" class="search-input" placeholder="🔍 Поиск еды..." 
                            oninput="filterItems(this.value, 'foods-list')">
                 </div>
                 <ul id="foods-list" class="items-list">
-                    {% for food in editable_foods %}
-                        <li class="item" data-name="{{ food.name|lower }}">
-                            <a href="{{ url_for('food.edit_food', food_id=food.id) }}">{{ food.name }}</a>
+                    {% if user_foods %}
+                        <li class="section-header">
+                            <h4>📋 Ваша еда</h4>
                         </li>
-                    {% endfor %}
+                        {% for food in user_foods %}
+                            <li class="item" data-name="{{ food.name|lower }}">
+                                <a href="{{ url_for('food.edit_food', food_id=food.id) }}">{{ food.name }}</a>
+                                <span class="owner-badge">Владелец</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if editable_foods %}
+                        <li class="section-header">
+                            <h4>✏️ Доступна для редактирования</h4>
+                        </li>
+                        {% for food in editable_foods %}
+                            <li class="item" data-name="{{ food.name|lower }}">
+                                <a href="{{ url_for('food.edit_food', food_id=food.id) }}">{{ food.name }}</a>
+                                <span class="editor-badge">Редактор</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
                 </ul>
             {% else %}
                 <div class="empty-state">
                     <i>🍖</i>
                     <h3>Нет доступной еды</h3>
-                    <p>У вас нет прав на редактирование еды</p>
+                    <p>У вас нет созданной еды и прав на редактирование другой еды</p>
                 </div>
             {% endif %}
         </div>
@@ -404,6 +531,16 @@ function filterItems(searchText, listId) {
             item.style.display = 'none';
         }
     });
+}
+
+function searchUser() {
+    const username = document.getElementById('userSearch').value.trim();
+    if (username) {
+        // Перенаправляем на профиль пользователя
+        window.location.href = `/profile/view_user/${username}`;
+    } else {
+        alert('Введите имя пользователя');
+    }
 }
 </script>
 {% endblock %}

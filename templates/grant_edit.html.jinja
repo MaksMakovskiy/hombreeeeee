@@ -12,7 +12,7 @@
         <h2 class="form-title">Назначение Редактора</h2>
         <p class="form-subtitle">
             Выдача прав на "{{ content_object.name }}" 
-            ({% if content_type == 'class' %}Класс{% else %}Подкласс{% endif %})
+            ({% if content_type == 'class' %}Класс{% elif content_type == 'subclass' %}Подкласс{% elif content_type == 'race' %}Раса{% elif content_type == 'food' %}Еда{% endif %})
         </p>
     </div>
     
@@ -39,11 +39,11 @@
     
     <div class="editors-section">
         <h3 class="section-title">Текущие Редакторы:</h3>
-        {% if content_object.editors_allowed %}
+        {% if editors_info %}
             <ul class="editors-list">
-                {% for editor_id in content_object.editors_allowed %}
+                {% for editor in editors_info %}
                     <li class="editor-item">
-                        {{ get_user_by_id(editor_id).username if get_user_by_id(editor_id) else 'Неизвестный пользователь' }}
+                        {{ editor.username }}
                     </li>
                 {% endfor %}
             </ul>
@@ -56,8 +56,12 @@
     <p>
         <a href="{% if content_type == 'class' %}
             {{ url_for('classes.view_class', class_id=content_object.id) }}
-        {% else %}
+        {% elif content_type == 'subclass' %}
             {{ url_for('subclasses.view_subclass', subclass_id=content_object.id) }}
+        {% elif content_type == 'race' %}
+            {{ url_for('races.view_race', race_id=content_object.id) }}
+        {% elif content_type == 'food' %}
+            {{ url_for('food.view_food', food_id=content_object.id) }}
         {% endif %}">Вернуться к просмотру контента</a>
     </p>
 {% endblock %}

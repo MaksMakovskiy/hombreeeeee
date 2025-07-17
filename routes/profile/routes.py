@@ -60,18 +60,71 @@ def view_profile():
     if request.method == 'GET':
         form.username.data = user.username
     
-    # Получаем объекты, которые пользователь может редактировать
-    classes = Class.query.filter(Class.editors_allowed.contains([user_id])).all()
-    subclasses = Subclass.query.filter(Subclass.editors_allowed.contains([user_id])).all()
-    races = Race.query.filter(Race.editors_allowed.contains([user_id])).all()
-    foods = Food.query.filter(Food.editors_allowed.contains([user_id])).all()
+    # Получаем объекты пользователя и объекты, которые он может редактировать
+    # Собственные объекты пользователя
+    user_classes = Class.query.filter_by(user_id=user_id).all()
+    user_subclasses = Subclass.query.filter_by(user_id=user_id).all()
+    user_races = Race.query.filter_by(user_id=user_id).all()
+    user_foods = Food.query.filter_by(user_id=user_id).all()
+    
+    # Объекты, которые пользователь может редактировать (но не создавал сам)
+    editable_classes = []
+    editable_subclasses = []
+    editable_races = []
+    editable_foods = []
+    
+    # Для каждого типа объектов проверяем права доступа
+    for cls in Class.query.filter(Class.user_id != user_id).all():
+        if cls.editors_allowed and user_id in cls.editors_allowed:
+            editable_classes.append(cls)
+    
+    for subcls in Subclass.query.filter(Subclass.user_id != user_id).all():
+        if subcls.editors_allowed and user_id in subcls.editors_allowed:
+            editable_subclasses.append(subcls)
+    
+    for race in Race.query.filter(Race.user_id != user_id).all():
+        if race.editors_allowed and user_id in race.editors_allowed:
+            editable_races.append(race)
+    
+    for food in Food.query.filter(Food.user_id != user_id).all():
+        if food.editors_allowed and user_id in food.editors_allowed:
+            editable_foods.append(food)
     
     return render_template(
         'profile.html.jinja',
         form=form,
         user=user,
-        editable_classes=classes,
-        editable_subclasses=subclasses,
-        editable_races=races,
-        editable_foods=foods
+        user_classes=user_classes,
+        user_subclasses=user_subclasses,
+        user_races=user_races,
+        user_foods=user_foods,
+        editable_classes=editable_classes,
+        editable_subclasses=editable_subclasses,
+        editable_races=editable_races,
+        editable_foods=editable_foods
+    )
+
+@profile_bp.route("/view_user/<username>")
+@login_required
+def view_user_profile(username):
+    """Просмотр профиля другого пользователя"""
+    from crud import User
+    user = User.query.filter_by(username=username).first()
+    if not user:
+        flash(f'Пользователь {username} не найден.', 'danger')
+        return redirect(url_for('profile.view_profile'))
+    
+    # Получаем созданные пользователем объекты (публичные)
+    user_classes = Class.query.filter_by(user_id=user.id).all()
+    user_subclasses = Subclass.query.filter_by(user_id=user.id).all()
+    user_races = Race.query.filter_by(user_id=user.id).all()
+    user_foods = Food.query.filter_by(user_id=user.id).all()
+    
+    return render_template(
+        'view_user_profile.html.jinja',
+        viewed_user=user,
+        user_classes=user_classes,
+        user_subclasses=user_subclasses,
+        user_races=user_races,
+        user_foods=user_foods
     )

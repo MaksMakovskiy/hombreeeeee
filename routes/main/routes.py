@@ -12,6 +12,24 @@ class GrantEditForm(FlaskForm):
     username = StringField('Имя пользователя', validators=[DataRequired()])
     submit = SubmitField('Выдать права')
 
+def get_editors_info(obj):
+    """Получить информацию о редакторах объекта"""
+    editors_info = []
+    if obj.editors_allowed:
+        for editor_id in obj.editors_allowed:
+            user = User.query.get(editor_id)
+            if user:
+                editors_info.append({
+                    'id': editor_id,
+                    'username': user.username
+                })
+            else:
+                editors_info.append({
+                    'id': editor_id,
+                    'username': 'Неизвестный пользователь'
+                })
+    return editors_info
+
 @main_bp.route("/")
 def index():
     return render_template("main.html.jinja", user=g.user)
@@ -21,10 +39,14 @@ def index():
 def dashboard():
     user_classes = Class.query.filter_by(user_id=g.user.id).all()
     user_subclasses = Subclass.query.filter_by(user_id=g.user.id).all()
+    user_races = Race.query.filter_by(user_id=g.user.id).all()
+    user_foods = Food.query.filter_by(user_id=g.user.id).all()
     return render_template('dashboard.html.jinja',
                          user=g.user,
                          user_classes=user_classes,
-                         user_subclasses=user_subclasses)
+                         user_subclasses=user_subclasses,
+                         user_races=user_races,
+                         user_foods=user_foods)
 
 @main_bp.route("/grant_edit/<content_type>/<int:content_id>", methods=['GET', 'POST'])
 @login_required
@@ -51,8 +73,11 @@ def grant_edit(content_type, content_id):
             # Используем правильное поле editors_allowed
             if not obj.editors_allowed:
                 obj.editors_allowed = []
-            if user.id not in obj.editors_allowed:
-                obj.editors_allowed.append(user.id)
+            
+            current_editors = obj.editors_allowed.copy() if obj.editors_allowed else []
+            if user.id not in current_editors:
+                current_editors.append(user.id)
+                obj.editors_allowed = current_editors
                 db.session.commit()
                 flash(f"Права на редактирование выданы пользователю {username}.", "success")
             else:
@@ -64,5 +89,6 @@ def grant_edit(content_type, content_id):
         content_type=content_type,
         content_id=content_id,
         content_object=obj,
-        form=form
+        form=form,
+        editors_info=get_editors_info(obj)
     )
