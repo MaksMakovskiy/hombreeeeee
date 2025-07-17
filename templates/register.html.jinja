@@ -1,50 +1,58 @@
 {% extends "base.html.jinja" %}
 
-{% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
-{% endblock %}
-
 {% block title %}Регистрация{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style_base.css') }}">
+{% endblock %}
+
 {% block content %}
-<div class="auth-container">
-    <div class="auth-card">
-        <h2 class="auth-title">Регистрация в Гильдии</h2>
-        <p class="auth-subtitle">Присоединяйтесь к братству искателей приключений</p>
+<div class="main-content">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">🚀 Регистрация</h1>
+                <p class="auth-subtitle">Присоединяйтесь к нашему сообществу!</p>
+            </div>
         
         <form method="POST" class="auth-form">
             {{ form.csrf_token }}
             
             <div class="form-group">
-                {{ form.username.label(class="form-label") }}
-                {{ form.username(class="form-input", placeholder="Введите имя героя") }}
+                {{ form.username.label }}
+                {{ form.username(size=32, class="form-control", placeholder="Введите имя пользователя") }}
                 {% for error in form.username.errors %}
-                    <div class="error-message">{{ error }}</div>
+                    <span class="form-error">{{ error }}</span>
                 {% endfor %}
             </div>
             
             <div class="form-group">
-                {{ form.password.label(class="form-label") }}
-                {{ form.password(class="form-input", placeholder="Создайте пароль") }}
+                {{ form.password.label }}
+                {{ form.password(size=32, class="form-control", placeholder="Придумайте пароль") }}
                 {% for error in form.password.errors %}
-                    <div class="error-message">{{ error }}</div>
+                    <span class="form-error">{{ error }}</span>
                 {% endfor %}
             </div>
             
             <div class="form-group">
-                {{ form.confirm_password.label(class="form-label") }}
-                {{ form.confirm_password(class="form-input", placeholder="Подтвердите пароль") }}
+                {{ form.confirm_password.label }}
+                {{ form.confirm_password(size=32, class="form-control", placeholder="Повторите пароль") }}
                 {% for error in form.confirm_password.errors %}
-                    <div class="error-message">{{ error }}</div>
+                    <span class="form-error">{{ error }}</span>
                 {% endfor %}
             </div>
             
-            {{ form.submit(class="auth-button") }}
+            <div class="form-actions">
+                {{ form.submit(class="button") }}
+            </div>
         </form>
         
-        <div class="auth-links">
-            <p>Уже состоите в гильдии? <a href="{{ url_for('auth.login') }}">Войти</a></p>
+        <div class="auth-footer">
+            <p>Уже есть аккаунт? <a href="{{ url_for('auth.login') }}" class="auth-link">Войти</a></p>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

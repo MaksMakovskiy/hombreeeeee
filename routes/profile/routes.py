@@ -2,8 +2,9 @@ from flask import Blueprint, render_template, redirect, url_for, flash, session,
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, EqualTo
-from crud import get_user_by_id, update_user_password, delete_user, Class, Subclass, Race, Food
+from crud import get_user_by_id, update_user_password, delete_user, Class, Subclass, Race, Food, db
 from utils.decorators import login_required
+from forms.comments import ProfileForm
 import json
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
@@ -25,7 +26,7 @@ def update_profile():
             user.set_password(form.new_password.data)
             db.session.commit()
             flash('Пароль успешно обновлен!', 'success')
-            return redirect(url_for('main.dashboard'))
+            return redirect(url_for('profile.view_profile'))
         else:
             flash('Текущий пароль неверен.', 'danger')
     return render_template('update_profile.html.jinja', form=form, user=user)
@@ -41,18 +42,33 @@ def delete_profile():
     return redirect(url_for('profile.dashboard'))
     return redirect(url_for('profile.dashboard'))
 
-@profile_bp.route("/view", methods=['GET'])
+@profile_bp.route("/view", methods=['GET', 'POST'])
 @login_required
 def view_profile():
     user_id = session['user_id']
     user = get_user_by_id(user_id)
+    form = ProfileForm()
+    
+    if form.validate_on_submit():
+        # Обновляем данные пользователя
+        user.username = form.username.data
+        db.session.commit()
+        flash('Профиль успешно обновлен!', 'success')
+        return redirect(url_for('profile.view_profile'))
+    
+    # Заполняем форму текущими данными пользователя
+    if request.method == 'GET':
+        form.username.data = user.username
+    
     # Получаем объекты, которые пользователь может редактировать
     classes = Class.query.filter(Class.editors_allowed.contains([user_id])).all()
     subclasses = Subclass.query.filter(Subclass.editors_allowed.contains([user_id])).all()
     races = Race.query.filter(Race.editors_allowed.contains([user_id])).all()
     foods = Food.query.filter(Food.editors_allowed.contains([user_id])).all()
+    
     return render_template(
         'profile.html.jinja',
+        form=form,
         user=user,
         editable_classes=classes,
         editable_subclasses=subclasses,

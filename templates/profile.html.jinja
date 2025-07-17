@@ -1,121 +1,409 @@
 {% extends "base.html.jinja" %}
 
-{% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% block title %}Профиль{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style_base.css') }}">
+<style>
+.profile-tabs-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #8b4513;
+    border-radius: 20px;
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.8),
+        inset 0 2px 12px rgba(205, 133, 63, 0.1);
+    overflow: hidden;
+}
+
+.profile-tabs-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #8b4513 0%, #cd853f 25%, #daa520 50%, #cd853f 75%, #8b4513 100%);
+    border-radius: 20px 20px 0 0;
+}
+
+.tabs-header {
+    display: flex;
+    background: linear-gradient(180deg, #3a2e1e 80%, #2a2a2a 100%);
+    border-bottom: 2px solid #8b4513;
+}
+
+.tab-button {
+    flex: 1;
+    padding: 1.2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    color: #ffe082;
+    transition: all 0.3s ease;
+    border-bottom: 3px solid transparent;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.tab-button:hover {
+    background: linear-gradient(90deg, #e7b96a 60%, #3a2e1e 100%);
+    color: #232323;
+    text-shadow: none;
+    transform: scale(1.02);
+}
+
+.tab-button.active {
+    background: linear-gradient(90deg, #ffe082 60%, #e7b96a 100%);
+    color: #232323;
+    border-bottom-color: #daa520;
+    text-shadow: none;
+    box-shadow: 0 2px 12px rgba(255, 224, 130, 0.4);
+}
+
+.tab-content {
+    display: none;
+    padding: 2.5rem;
+    background: #181818;
+    color: #f3e7c6;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.search-container {
+    margin-bottom: 2rem;
+}
+
+.search-input {
+    width: 100%;
+    background: #181818;
+    color: #ffe082;
+    border: 2px solid #8b4513;
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    font-family: 'Merriweather', 'Georgia', serif;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #ffe082;
+    box-shadow: 0 0 0 0.3rem rgba(255, 224, 130, 0.25), 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.search-input::placeholder {
+    color: #cd853f;
+    opacity: 0.7;
+}
+
+.items-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.item {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 1px solid #8b4513;
+    border-radius: 12px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.item:hover {
+    background: linear-gradient(135deg, #2a2a2a 0%, #3a2e1e 100%);
+    border-color: #cd853f;
+    transform: translateX(10px);
+    box-shadow: 0 4px 16px rgba(205, 133, 63, 0.3);
+}
+
+.item a {
+    color: #ffe082;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    font-family: 'Cinzel', serif;
+    transition: color 0.3s ease;
+}
+
+.item a:hover {
+    color: #daa520;
+    text-decoration: none;
+    text-shadow: 0 2px 8px rgba(218, 165, 32, 0.5);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 4rem;
+    color: #cd853f;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px dashed #8b4513;
+    border-radius: 15px;
+    box-shadow: inset 0 2px 12px rgba(0, 0, 0, 0.3);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 1.5rem;
+    display: block;
+    opacity: 0.7;
+}
+
+.empty-state h3 {
+    color: #ffe082;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.item-count {
+    background: linear-gradient(90deg, #8b4513 60%, #cd853f 100%);
+    color: #f3e7c6;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.85rem;
+    font-weight: bold;
+    margin-left: 0.5rem;
+    box-shadow: 0 2px 8px rgba(139, 69, 19, 0.4);
+    font-family: 'Cinzel', serif;
+}
+
+.subclass-info {
+    color: #cd853f;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+    opacity: 0.8;
+    font-style: italic;
+}
+
+/* Анимация появления */
+.tab-content.active {
+    animation: fadeInUp 0.4s ease;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стилизация скролла в D&D стиле */
+.tab-content::-webkit-scrollbar {
+    width: 12px;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    background: #181818;
+    border-radius: 10px;
+    border: 1px solid #8b4513;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, #cd853f 0%, #8b4513 100%);
+    border-radius: 10px;
+    border: 1px solid #ffe082;
+}
+
+.tab-content::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, #daa520 0%, #cd853f 100%);
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="profile-container">
-    <div class="profile-header">
-        <h1 class="profile-title">Профиль Героя</h1>
-        <p class="profile-subtitle">{{ user.username }} - Искатель приключений</p>
+<div class="main-content">
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <h1 class="auth-title">👤 Профиль</h1>
+                <p class="auth-subtitle">Управление вашим аккаунтом</p>
+            </div>
+            
+            <form method="POST" class="auth-form">
+                {{ form.csrf_token }}
+                
+                <div class="form-group">
+                    {{ form.username.label }}
+                    {{ form.username(size=32, class="form-control", placeholder="Имя пользователя") }}
+                    {% for error in form.username.errors %}
+                        <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                
+                <div class="form-actions">
+                    {{ form.submit(class="button") }}
+                    <a href="{{ url_for('profile.update_profile') }}" class="button logout-button" style="margin-left: 1rem;">🔐 Сменить пароль</a>
+                </div>
+            </form>
+            
+            <div class="auth-footer">
+                <p><a href="{{ url_for('main.index') }}" class="auth-link">← Вернуться на главную</a></p>
+            </div>
+        </div>
     </div>
-    
-    <div class="profile-actions">
-        <button type="button" class="action-button" onclick="openModal('classesModal')">
-            Мои Классы
-        </button>
-        <button type="button" class="action-button" onclick="openModal('subclassesModal')">
-            Мои Подклассы
-        </button>
-        <button type="button" class="action-button" onclick="openModal('racesModal')">
-            Мои Расы
-        </button>
-        <button type="button" class="action-button" onclick="openModal('foodModal')">
-            Моя Провизия
-        </button>
-        <a href="{{ url_for('profile.update_profile') }}" class="action-button">
-            Сменить Пароль
-        </a>
-    </div>
-    
-    <div class="delete-form">
-        <form action="{{ url_for('profile.delete_profile') }}" method="POST" onsubmit="return confirm('Удалить аккаунт навсегда?');">
-            <input type="submit" value="Удалить Аккаунт" class="action-button delete-button">
-        </form>
-    </div>
-</div>
 
-<!-- Модальные окна -->
-<div id="classesModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('classesModal')">&times;</span>
-        <h2>Классы, которые вы можете менять</h2>
-        <input type="text" id="classSearch" placeholder="Поиск по имени..." oninput="filterList('classSearch', 'classList', 'class')">
-        <ul id="classList">
-            {% for c in editable_classes %}
-                <li><a href="{{ url_for('classes.edit_class', class_id=c.id) }}">{{ c.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-<div id="subclassesModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('subclassesModal')">&times;</span>
-        <h2>Подклассы, которые вы можете менять</h2>
-        <input type="text" id="subclassSearch" placeholder="Поиск по названию класса или подкласса..." oninput="filterList('subclassSearch', 'subclassList', 'subclass')">
-        <ul id="subclassList">
-            {% for s in editable_subclasses %}
-                <li>
-                    <a href="{{ url_for('subclasses.edit_subclass', subclass_id=s.id) }}">
-                        {{ s.name }} ({{ s.parent_class.name }})
-                    </a>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-<div id="racesModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('racesModal')">&times;</span>
-        <h2>Расы, которые вы можете менять</h2>
-        <input type="text" id="raceSearch" placeholder="Поиск по имени..." oninput="filterList('raceSearch', 'raceList', 'race')">
-        <ul id="raceList">
-            {% for r in editable_races %}
-                <li><a href="{{ url_for('races.edit_race', race_id=r.id) }}">{{ r.name }}</a></li>
-            {% endfor %}
-        </ul>
-    </div>
-</div>
-<div id="foodModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="closeModal('foodModal')">&times;</span>
-        <h2>Еда, которую вы можете менять</h2>
-        <input type="text" id="foodSearch" placeholder="Поиск по названию..." oninput="filterList('foodSearch', 'foodList', 'food')">
-        <ul id="foodList">
-            {% for f in editable_foods %}
-                <li><a href="{{ url_for('food.edit_food', food_id=f.id) }}">{{ f.name }}</a></li>
-            {% endfor %}
-        </ul>
+    <div class="profile-tabs-container">
+        <div class="tabs-header">
+            <button class="tab-button active" onclick="openTab(event, 'classes')">
+                ⚔️ Классы <span class="item-count">{{ editable_classes|length }}</span>
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'subclasses')">
+                🎯 Подклассы <span class="item-count">{{ editable_subclasses|length }}</span>
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'races')">
+                🧝 Расы <span class="item-count">{{ editable_races|length }}</span>
+            </button>
+            <button class="tab-button" onclick="openTab(event, 'foods')">
+                🍖 Еда <span class="item-count">{{ editable_foods|length }}</span>
+            </button>
+        </div>
+
+        <!-- Классы -->
+        <div id="classes" class="tab-content active">
+            {% if editable_classes %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск классов..." 
+                           oninput="filterItems(this.value, 'classes-list')">
+                </div>
+                <ul id="classes-list" class="items-list">
+                    {% for class in editable_classes %}
+                        <li class="item" data-name="{{ class.name|lower }}">
+                            <a href="{{ url_for('classes.edit_class', class_id=class.id) }}">{{ class.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>⚔️</i>
+                    <h3>Нет доступных классов</h3>
+                    <p>У вас нет прав на редактирование классов</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Подклассы -->
+        <div id="subclasses" class="tab-content">
+            {% if editable_subclasses %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск подклассов..." 
+                           oninput="filterItems(this.value, 'subclasses-list')">
+                </div>
+                <ul id="subclasses-list" class="items-list">
+                    {% for subclass in editable_subclasses %}
+                        <li class="item" data-name="{{ subclass.name|lower }} {{ subclass.parent_class.name|lower }}">
+                            <a href="{{ url_for('subclasses.edit_subclass', subclass_id=subclass.id) }}">
+                                {{ subclass.name }}
+                            </a>
+                            <span class="subclass-info">({{ subclass.parent_class.name }})</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>🎯</i>
+                    <h3>Нет доступных подклассов</h3>
+                    <p>У вас нет прав на редактирование подклассов</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Расы -->
+        <div id="races" class="tab-content">
+            {% if editable_races %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск рас..." 
+                           oninput="filterItems(this.value, 'races-list')">
+                </div>
+                <ul id="races-list" class="items-list">
+                    {% for race in editable_races %}
+                        <li class="item" data-name="{{ race.name|lower }}">
+                            <a href="{{ url_for('races.edit_race', race_id=race.id) }}">{{ race.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>🧝</i>
+                    <h3>Нет доступных рас</h3>
+                    <p>У вас нет прав на редактирование рас</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Еда -->
+        <div id="foods" class="tab-content">
+            {% if editable_foods %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск еды..." 
+                           oninput="filterItems(this.value, 'foods-list')">
+                </div>
+                <ul id="foods-list" class="items-list">
+                    {% for food in editable_foods %}
+                        <li class="item" data-name="{{ food.name|lower }}">
+                            <a href="{{ url_for('food.edit_food', food_id=food.id) }}">{{ food.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>🍖</i>
+                    <h3>Нет доступной еды</h3>
+                    <p>У вас нет прав на редактирование еды</p>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
+
 {% block scripts %}
 <script>
-function openModal(id) {
-    document.getElementById(id).style.display = "block";
+function openTab(evt, tabName) {
+    // Скрываем все вкладки
+    var tabContents = document.getElementsByClassName("tab-content");
+    for (var i = 0; i < tabContents.length; i++) {
+        tabContents[i].classList.remove("active");
+    }
+    
+    // Убираем активный класс со всех кнопок
+    var tabButtons = document.getElementsByClassName("tab-button");
+    for (var i = 0; i < tabButtons.length; i++) {
+        tabButtons[i].classList.remove("active");
+    }
+    
+    // Показываем выбранную вкладку и делаем кнопку активной
+    document.getElementById(tabName).classList.add("active");
+    evt.currentTarget.classList.add("active");
 }
-function closeModal(id) {
-    document.getElementById(id).style.display = "none";
-}
-function filterList(inputId, listId, type) {
-    const input = document.getElementById(inputId).value.toLowerCase();
-    const items = document.querySelectorAll(`#${listId} li`);
-    items.forEach(li => {
-        let text = li.textContent.toLowerCase();
-        if (type === 'subclass') {
-            // подкласс: ищем по названию подкласса или класса
-            text = text.toLowerCase();
+
+function filterItems(searchText, listId) {
+    const items = document.querySelectorAll(`#${listId} .item`);
+    const search = searchText.toLowerCase().trim();
+    
+    items.forEach(item => {
+        const name = item.getAttribute('data-name');
+        if (name.includes(search)) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
         }
-        li.style.display = text.includes(input) ? "" : "none";
     });
 }
-// Закрытие по клику вне модалки
-window.onclick = function(event) {
-    ['classesModal','subclassesModal','racesModal','foodModal'].forEach(function(id){
-        const modal = document.getElementById(id);
-        if (event.target === modal) modal.style.display = "none";
-    });
-};
 </script>
 {% endblock %}

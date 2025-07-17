@@ -3,7 +3,7 @@
 from flask import Blueprint, render_template, request, redirect, url_for, flash, session, g
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import DataRequired, Length, EqualTo
+from wtforms.validators import DataRequired, Length, EqualTo, ValidationError
 from crud import db, User, get_user_by_username, create_user, get_user_by_id
 
 auth_bp = Blueprint('auth', __name__)
@@ -39,13 +39,27 @@ def load_logged_in_user():
 @auth_bp.route("/register", methods=['GET', 'POST'])
 def register():
     form = RegistrationForm()
+    print(f"Метод запроса: {request.method}")
+    print(f"Данные формы: {request.form}")
+    print(f"Валидация формы: {form.validate_on_submit()}")
+    
     if form.validate_on_submit():
-        user = User(username=form.username.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash('Ваш аккаунт успешно создан! Теперь вы можете войти.', 'success')
-        return redirect(url_for('auth.login'))
+        print(f"Создаем пользователя: {form.username.data}")
+        # Используем функцию create_user из crud.py
+        user = create_user(form.username.data, form.password.data)
+        if user:
+            print(f"Пользователь создан успешно: {user.id}")
+            # Автоматически входим в систему после регистрации
+            session['user_id'] = user.id
+            flash('Ваш аккаунт успешно создан! Добро пожаловать!', 'success')
+            return redirect(url_for('profile.view_profile'))  # Перенаправляем в профиль
+        else:
+            print("Ошибка при создании пользователя")
+            flash('Ошибка при создании аккаунта. Попробуйте еще раз.', 'danger')
+    else:
+        if request.method == 'POST':
+            print(f"Ошибки валидации: {form.errors}")
+    
     return render_template('register.html.jinja', form=form)
 
 @auth_bp.route("/login", methods=['GET', 'POST'])
