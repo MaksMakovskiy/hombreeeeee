@@ -1,34 +1,33 @@
 {% extends "base.html.jinja" %}
-{% block title %}Все расы{% endblock %}
 {% block extra_css %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/lists.css') }}">
 {% endblock %}
 {% block content %}
 <div class="list-container">
-    <h1 class="list-title">Расы мира</h1>
+    <h1 class="list-title">Провизия и снаряжение</h1>
     
     <div class="search-section">
-        <input type="text" id="raceSearch" class="search-input" placeholder="Поиск расы..." autocomplete="off" oninput="showRaceSuggestions()">
-        <div id="raceSuggestions" class="suggestions"></div>
+        <input type="text" id="foodSearch" class="search-input" placeholder="Поиск провизии..." autocomplete="off" oninput="showFoodSuggestions()">
+        <div id="foodSuggestions" class="suggestions"></div>
     </div>
     
     {% if user %}
-        <a href="{{ url_for('races.create_race') }}" class="create-new-btn">⚔ Создать новую расу</a>
+        <a href="{{ url_for('food.create_food') }}" class="create-new-btn">🍖 Добавить провизию</a>
     {% endif %}
     
-    {% if races %}
+    {% if foods %}
         <div class="items-grid">
-            {% for race in races %}
+            {% for food in foods %}
                 <div class="item-card">
-                    <h3>{{ race.name }}</h3>
-                    {% if race.image_url %}
-                        <img src="{{ race.image_url }}" alt="Картинка расы" style="max-width: 100%; border-radius: 10px; margin-bottom: 15px;">
+                    <h3>{{ food.name }}</h3>
+                    {% if food.image_url %}
+                        <img src="{{ food.image_url }}" alt="Картинка еды" style="max-width: 100%; border-radius: 10px; margin-bottom: 15px;">
                     {% endif %}
-                    <p>{{ race.description | nl2br }}</p>
+                    <p>{{ food.description | nl2br }}</p>
                     <div class="item-meta">
-                        <span class="item-author">Автор: {{ race.author.username if race.author else 'Неизвестен' }}</span>
+                        <span class="item-author">Автор: {{ food.author.username if food.author else 'Неизвестен' }}</span>
                         <div class="item-actions">
-                            <a href="{{ url_for('races.view_race', race_id=race.id) }}" class="view-btn">Подробнее</a>
+                            <a href="{{ url_for('food.view_food', food_id=food.id) }}" class="view-btn">Подробнее</a>
                         </div>
                     </div>
                 </div>
@@ -36,18 +35,18 @@
         </div>
     {% else %}
         <div class="empty-state">
-            <div class="empty-state-icon">🏰</div>
-            <p>Пока что расы не созданы. Станьте первым, кто добавит расу!</p>
+            <div class="empty-state-icon">🍺</div>
+            <p>Пока что провизии нет. Станьте первым, кто добавит еду!</p>
         </div>
     {% endif %}
 </div>
 {% endblock %}
 {% block scripts %}
 <script>
-const races = [{% for race in races %}"{{ race.name|escape }}",{% endfor %}];
+const foods = [{% for food in foods %}"{{ food.name|escape }}",{% endfor %}];
 
-function showRaceSuggestions() {
-    const input = document.getElementById('raceSearch');
+function showFoodSuggestions() {
+    const input = document.getElementById('foodSearch');
     const searchTerm = input.value.toLowerCase();
     const cards = document.querySelectorAll('.item-card');
     
@@ -64,11 +63,11 @@ function showRaceSuggestions() {
     });
     
     // Автодополнение
-    const container = document.getElementById('raceSuggestions');
+    const container = document.getElementById('foodSuggestions');
     container.innerHTML = '';
     
     if (searchTerm.length > 0) {
-        const suggestions = races
+        const suggestions = foods
             .filter(name => name.toLowerCase().includes(searchTerm))
             .slice(0, 5);
             
@@ -80,7 +79,7 @@ function showRaceSuggestions() {
                 div.onclick = () => {
                     input.value = name;
                     container.innerHTML = '';
-                    showRaceSuggestions();
+                    showFoodSuggestions();
                 };
                 container.appendChild(div);
             });

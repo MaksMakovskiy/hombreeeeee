@@ -24,6 +24,9 @@ class LoginForm(FlaskForm):
     password = PasswordField('Пароль', validators=[DataRequired()])
     submit = SubmitField('Войти')
 
+class LogoutForm(FlaskForm):
+    submit = SubmitField('Выйти')
+
 @auth_bp.before_app_request
 def load_logged_in_user():
     """Загружает текущего пользователя для использования в шаблонах."""
@@ -58,8 +61,15 @@ def login():
             flash('Неверное имя пользователя или пароль.', 'danger')
     return render_template('login.html.jinja', form=form)
 
-@auth_bp.route("/logout")
+@auth_bp.route("/logout", methods=['GET', 'POST'])
 def logout():
+    if request.method == 'POST':
+        form = LogoutForm()
+        if form.validate_on_submit():
+            session.pop('user_id', None)
+            flash('Вы вышли из системы.', 'info')
+            return redirect(url_for('main.index'))
+    # Для GET запросов (прямая ссылка)
     session.pop('user_id', None)
     flash('Вы вышли из системы.', 'info')
     return redirect(url_for('main.index'))

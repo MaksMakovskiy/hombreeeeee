@@ -2,7 +2,8 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, HiddenField, SubmitField
 from wtforms.validators import DataRequired
-from crud import db, Race, RaceAbility, User
+from crud import db, Race, RaceAbility, User, Comment
+from forms.comments import CommentForm
 from utils.decorators import login_required, editor_required
 import json
 
@@ -18,7 +19,8 @@ class RaceForm(FlaskForm):
 @races_bp.route("/")
 def list_races():
     races = Race.query.all()
-    return render_template('list_races.html.jinja', races=races)
+    comment_form = CommentForm()
+    return render_template('list_races.html.jinja', races=races, comment_form=comment_form)
 
 @races_bp.route("/create", methods=['GET', 'POST'])
 @login_required
@@ -56,7 +58,23 @@ def view_race(race_id):
     race = Race.query.get_or_404(race_id)
     abilities = RaceAbility.query.filter_by(race_id=race_id).all()
     can_edit = session.get('user_id') in (race.editors_allowed or [])
-    return render_template('view_race.html.jinja', race=race, abilities=abilities, can_edit=can_edit)
+    comment_form = CommentForm()
+    comments = Comment.query.filter_by(race_id=race_id).order_by(Comment.timestamp.asc()).all()
+    
+    # Получаем текущего пользователя для проверки в шаблоне
+    user = None
+    if session.get('user_id'):
+        user = User.query.get(session['user_id'])
+    
+    return render_template(
+        'view_race.html.jinja',
+        race=race,
+        abilities=abilities,
+        can_edit=can_edit,
+        comment_form=comment_form,
+        comments=comments,
+        user=user
+    )
 
 @races_bp.route("/grant_edit/<int:race_id>", methods=['GET', 'POST'])
 @login_required
@@ -123,3 +141,38 @@ def edit_race(race_id):
         race_id=race.id,
         existing_abilities_json=json.dumps(existing_abilities)
     )
+
+@races_bp.route("/<int:race_id>/comment", methods=['POST'])
+@login_required
+def add_comment(race_id):
+    form = CommentForm()
+    if form.validate_on_submit():
+        user_id = session['user_id']
+        comment = Comment(
+            user_id=user_id,
+            text=form.text.data,
+            race_id=race_id
+        )
+        db.session.add(comment)
+        db.session.commit()
+        flash('Комментарий добавлен!', 'success')
+    else:
+        flash('Ошибка при добавлении комментария.', 'danger')
+    return redirect(url_for('races.view_race', race_id=race_id))
+
+@races_bp.route("/<int:race_id>/delete", methods=['GET', 'POST'])
+@login_required
+@editor_required
+def delete_race(race_id):
+    race = Race.query.get_or_404(race_id)
+    
+    # Проверяем права: только автор может удалить расу
+    if session['user_id'] != race.user_id:
+        flash('У вас нет прав для удаления этой расы.', 'danger')
+        return redirect(url_for('races.view_race', race_id=race_id))
+    
+    # CASCADE на связях Race поможет удалить RaceAbility и Comments
+    db.session.delete(race)
+    db.session.commit()
+    flash('Раса успешно удалена!', 'success')
+    return redirect(url_for('races.list_races'))

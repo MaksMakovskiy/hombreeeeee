@@ -16,6 +16,8 @@ class User(db.Model):
     comments = db.relationship('Comment', backref='author', lazy='dynamic', cascade='all, delete-orphan')
     classes = db.relationship('Class', backref='author', lazy='dynamic', cascade='all, delete-orphan')
     subclasses = db.relationship('Subclass', backref='author', lazy='dynamic', cascade='all, delete-orphan')
+    races = db.relationship('Race', backref='author', lazy='dynamic', cascade='all, delete-orphan')
+    foods = db.relationship('Food', backref='author', lazy='dynamic', cascade='all, delete-orphan')
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -98,6 +100,8 @@ class Comment(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('classes.id'))
     subclass_id = db.Column(db.Integer, db.ForeignKey('subclass.id'))
+    race_id = db.Column(db.Integer, db.ForeignKey('races.id'))        # Добавить
+    food_id = db.Column(db.Integer, db.ForeignKey('food.id'))         # Добавить
 
 class Race(db.Model):
     __tablename__ = 'races'
@@ -108,6 +112,7 @@ class Race(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     editors_allowed = db.Column(db.JSON, default=list)
     abilities = db.relationship('RaceAbility', backref='race_ref', lazy='dynamic', cascade='all, delete-orphan')
+    comments = db.relationship('Comment', backref='race', lazy='dynamic', cascade='all, delete-orphan') # Добавить
 
 class RaceAbility(db.Model):
     __tablename__ = 'race_ability'
@@ -115,6 +120,16 @@ class RaceAbility(db.Model):
     race_id = db.Column(db.Integer, db.ForeignKey('races.id'), nullable=False)
     name = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
+
+class Food(db.Model):
+    __tablename__ = 'food'
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    image_url = db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    editors_allowed = db.Column(db.JSON, default=list)
+    comments = db.relationship('Comment', backref='food', lazy='dynamic', cascade='all, delete-orphan') # Добавить
 
 # --- Вспомогательные функции для пользователей (существующие) ---
 def create_user(username, password):
@@ -156,10 +171,18 @@ def get_all_classes():
 def get_all_subclasses():
     return Subclass.query.all()
 
-def add_comment(user_id, text, class_id=None, subclass_id=None):
-    if not class_id and not subclass_id:
-        return None # Комментарий должен быть привязан к чему-то
-    comment = Comment(user_id=user_id, text=text, class_id=class_id, subclass_id=subclass_id)
+def add_comment(user_id, text, class_id=None, subclass_id=None, race_id=None, food_id=None):
+    # Комментарий должен быть привязан хотя бы к одному объекту
+    if not any([class_id, subclass_id, race_id, food_id]):
+        return None
+    comment = Comment(
+        user_id=user_id,
+        text=text,
+        class_id=class_id,
+        subclass_id=subclass_id,
+        race_id=race_id,
+        food_id=food_id
+    )
     db.session.add(comment)
     db.session.commit()
     return comment

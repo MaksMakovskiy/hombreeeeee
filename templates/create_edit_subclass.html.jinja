@@ -1,102 +1,171 @@
 {% extends "base.html.jinja" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style_subclass_form.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create-edit.css') }}">
+{% endblock %}
 
 {% block title %}{% if mode == 'create' %}Создать Подкласс{% else %}Редактировать Подкласс{% endif %}{% endblock %}
 
 {% block content %}
+<div class="form-container">
     <h2>{% if mode == 'create' %}Создать новый Подкласс{% else %}Редактировать Подкласс "{{ content_object.name if content_id else '' }}"{% endif %}</h2>
     <form method="POST" id="subclass-form">
         {{ form.csrf_token }}
-        <p>
-            {{ form.name.label }}<br>
-            {{ form.name(size=40) }}
+        
+        <div class="form-group">
+            {{ form.name.label(class="form-label") }}
+            {{ form.name(class="form-input", size=40) }}
             {% for error in form.name.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error">[{{ error }}]</span>
             {% endfor %}
-        </p>
-        <p>
-            {{ form.class_id.label }}<br>
-            {{ form.class_id() }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.class_id.label(class="form-label") }}
+            {{ form.class_id(class="form-select") }}
             {% for error in form.class_id.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error">[{{ error }}]</span>
             {% endfor %}
-        </p>
-        <p>
-            {{ form.description.label }}<br>
-            {{ form.description(rows=10, cols=60) }}
+        </div>
+        
+        <div class="form-group">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-textarea", rows=10, cols=60) }}
             {% for error in form.description.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error">[{{ error }}]</span>
             {% endfor %}
-        </p>
+        </div>
 
         <h3>Способности:</h3>
         <div id="abilities-container"></div>
-        <button type="button" id="add-ability-btn">Добавить способность</button>
-        <p>
+        <button type="button" id="add-ability-btn" class="add-btn">✨ Добавить способность</button>
+        
+        <div class="form-group">
             {{ form.abilities_json_field(id="abilities_json_field", type="hidden") }}
             {% for error in form.abilities_json_field.errors %}
-                <span style="color: red;">[{{ error }}]</span>
+                <span class="error">[{{ error }}]</span>
             {% endfor %}
-        </p>
+        </div>
 
-        <p>{{ form.submit() }}</p>
+        <div class="form-actions">
+            {{ form.submit(class="submit-btn") }}
+            <a href="{{ url_for('subclasses.list_subclasses') }}" class="cancel-btn">Отмена</a>
+        </div>
     </form>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    console.log("Скрипт загружен!");
-    // Если есть начальные способности, подставьте их сюда:
-    let abilities = [];
-    // let abilities = {{ existing_abilities_json|safe }}; // если передаете из Flask
+// Глобальные переменные
+let abilities = [];
+let abilitiesContainer;
+let abilitiesJsonField;
 
-    const abilitiesContainer = document.getElementById('abilities-container');
-    const abilitiesJsonField = document.getElementById('abilities_json_field');
+// Глобальная функция добавления способности - ДОЛЖНА БЫТЬ ВВЕРХУ!
+function addAbility() {
+    console.log("Добавляем новую способность!");
+    abilities.push({
+        name: '', 
+        description: '', 
+        level: 1, 
+        type: ''
+    });
+    renderAbilities();
+}
 
-    function renderAbilities() {
-        abilitiesContainer.innerHTML = '';
+function renderAbilities() {
+    console.log("Рендерим способности:", abilities);
+    
+    if (!abilitiesContainer) {
+        console.error("Контейнер способностей не найден!");
+        return;
+    }
+    
+    abilitiesContainer.innerHTML = '';
+    
+    if (abilities.length === 0) {
+        abilitiesContainer.innerHTML = '<p style="color: #cd853f; text-align: center; font-style: italic; padding: 20px;">Пока нет способностей. Нажмите "Добавить способность" чтобы создать первую.</p>';
+    } else {
         abilities.forEach((ab, idx) => {
             const div = document.createElement('div');
             div.className = 'ability-item';
             div.innerHTML = `
-                <label>Название: <input type="text" value="${ab.name || ''}" data-idx="${idx}" data-field="name"></label>
-                <label>Описание: <input type="text" value="${ab.description || ''}" data-idx="${idx}" data-field="description"></label>
-                <label>Уровень: <input type="number" value="${ab.level || 1}" data-idx="${idx}" data-field="level"></label>
-                <label>Тип: <input type="text" value="${ab.type || ''}" data-idx="${idx}" data-field="type"></label>
-                <button type="button" class="remove-ability-btn" data-idx="${idx}">Удалить</button>
+                <h4>Способность ${idx + 1}</h4>
+                <label>Название:</label>
+                <input type="text" value="${ab.name || ''}" data-idx="${idx}" data-field="name" placeholder="Введите название способности" class="form-input" oninput="updateAbility(${idx}, 'name', this.value)">
+                
+                <label>Описание:</label>
+                <textarea rows="3" data-idx="${idx}" data-field="description" placeholder="Введите описание способности" class="form-textarea" oninput="updateAbility(${idx}, 'description', this.value)">${ab.description || ''}</textarea>
+                
+                <label>Уровень:</label>
+                <input type="number" value="${ab.level || 1}" data-idx="${idx}" data-field="level" min="1" max="20" class="form-input" oninput="updateAbility(${idx}, 'level', this.value)">
+                
+                <label>Тип:</label>
+                <input type="text" value="${ab.type || ''}" data-idx="${idx}" data-field="type" placeholder="Например: Активная, Пассивная" class="form-input" oninput="updateAbility(${idx}, 'type', this.value)">
+                
+                <button type="button" class="remove-ability-btn" onclick="removeAbility(${idx})">Удалить способность</button>
             `;
             abilitiesContainer.appendChild(div);
         });
-        // События для удаления
-        abilitiesContainer.querySelectorAll('.remove-ability-btn').forEach(btn => {
-            btn.onclick = function() {
-                const idx = +btn.getAttribute('data-idx');
-                abilities.splice(idx, 1);
-                renderAbilities();
-                updateAbilitiesField();
-            }
-        });
-        // События для изменения
-        abilitiesContainer.querySelectorAll('input').forEach(inp => {
-            inp.oninput = function() {
-                const idx = +inp.getAttribute('data-idx');
-                const field = inp.getAttribute('data-field');
-                abilities[idx][field] = inp.value;
-                updateAbilitiesField();
-            }
-        });
+    }
+    
+    updateAbilitiesField();
+}
+
+function updateAbility(idx, field, value) {
+    console.log("Обновляем способность:", idx, field, value);
+    if (abilities[idx]) {
+        abilities[idx][field] = value;
         updateAbilitiesField();
     }
-    function updateAbilitiesField() {
+}
+
+function removeAbility(idx) {
+    console.log("Удаляем способность с индексом:", idx);
+    abilities.splice(idx, 1);
+    renderAbilities();
+}
+
+function updateAbilitiesField() {
+    if (abilitiesJsonField) {
         abilitiesJsonField.value = JSON.stringify(abilities);
+        console.log("JSON поле обновлено:", abilitiesJsonField.value);
+    }
+}
+
+// Инициализация при загрузке
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("Скрипт загружен!");
+    
+    // Инициализация способностей из данных Flask
+    {% if existing_abilities %}
+        abilities = {{ existing_abilities|tojson }};
+    {% endif %}
+    
+    console.log("Загруженные способности:", abilities);
+
+    abilitiesContainer = document.getElementById('abilities-container');
+    abilitiesJsonField = document.getElementById('abilities_json_field');
+    const addBtn = document.getElementById('add-ability-btn');
+    
+    console.log("Контейнер способностей:", abilitiesContainer);
+    console.log("JSON поле:", abilitiesJsonField);
+    console.log("Кнопка добавления:", addBtn);
+
+    // Привязываем обработчик к кнопке
+    if (addBtn) {
+        addBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            console.log("Кнопка нажата через addEventListener!");
+            addAbility();
+        });
+        console.log("Обработчик привязан к кнопке");
+    } else {
+        console.error("Кнопка не найдена!");
     }
 
-    document.getElementById('add-ability-btn').onclick = function() {
-        console.log("Кнопка нажата!");
-        abilities.push({name: '', description: '', level: 1, type: ''});
-        renderAbilities();
-    };
-
+    // Инициальный рендер
     renderAbilities();
 });
 </script>

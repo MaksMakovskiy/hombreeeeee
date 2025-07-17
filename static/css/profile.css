@@ -1,0 +1,238 @@
+/* Profile Page Styles - D&D Theme */
+
+.profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: linear-gradient(135deg, #1a0e0a 0%, #2d1810 50%, #1a0e0a 100%);
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 2px solid #8b4513;
+}
+
+.profile-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.profile-title {
+    font-family: 'Cinzel', serif;
+    font-size: 2.5rem;
+    color: #daa520;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1rem;
+}
+
+.profile-subtitle {
+    font-family: 'Merriweather', serif;
+    color: #cd853f;
+    font-size: 1.1rem;
+    font-style: italic;
+}
+
+.profile-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.action-button {
+    background: linear-gradient(135deg, #8b4513, #a0522d);
+    color: #f4e4bc;
+    border: 2px solid #cd853f;
+    padding: 1rem 1.5rem;
+    border-radius: 10px;
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 60px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.action-button:hover {
+    background: linear-gradient(135deg, #a0522d, #cd853f);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(218, 165, 32, 0.3);
+    color: #f4e4bc;
+    text-decoration: none;
+}
+
+.delete-button {
+    background: linear-gradient(135deg, #8b0000, #b22222) !important;
+    border-color: #dc143c !important;
+}
+
+.delete-button:hover {
+    background: linear-gradient(135deg, #b22222, #dc143c) !important;
+    box-shadow: 0 6px 15px rgba(220, 20, 60, 0.3) !important;
+}
+
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(3px);
+}
+
+.modal-content {
+    background: linear-gradient(135deg, #1a0e0a 0%, #2d1810 50%, #1a0e0a 100%);
+    margin: 5% auto;
+    padding: 2rem;
+    border: 2px solid #8b4513;
+    border-radius: 15px;
+    width: 80%;
+    max-width: 600px;
+    max-height: 70vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+}
+
+.modal-content h2 {
+    font-family: 'Cinzel', serif;
+    color: #daa520;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    margin-bottom: 1.5rem;
+    text-align: center;
+    font-size: 1.8rem;
+}
+
+.close {
+    color: #cd853f;
+    float: right;
+    font-size: 2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.3s ease;
+    margin-top: -10px;
+}
+
+.close:hover {
+    color: #daa520;
+}
+
+/* Search Input in Modals */
+.modal-content input[type="text"] {
+    width: 100%;
+    padding: 0.8rem;
+    margin-bottom: 1rem;
+    background: rgba(26, 14, 10, 0.8);
+    border: 2px solid #8b4513;
+    border-radius: 8px;
+    color: #f4e4bc;
+    font-family: 'Merriweather', serif;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+.modal-content input[type="text"]:focus {
+    outline: none;
+    border-color: #daa520;
+    box-shadow: 0 0 10px rgba(218, 165, 32, 0.3);
+}
+
+.modal-content input[type="text"]::placeholder {
+    color: #8b7355;
+    font-style: italic;
+}
+
+/* Modal Lists */
+.modal-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.modal-content li {
+    margin-bottom: 0.8rem;
+    padding: 0.8rem;
+    background: rgba(139, 69, 19, 0.2);
+    border-radius: 8px;
+    border: 1px solid rgba(205, 133, 63, 0.3);
+    transition: all 0.3s ease;
+}
+
+.modal-content li:hover {
+    background: rgba(139, 69, 19, 0.4);
+    border-color: #cd853f;
+    transform: translateX(5px);
+}
+
+.modal-content li a {
+    color: #f4e4bc;
+    text-decoration: none;
+    font-family: 'Merriweather', serif;
+    font-size: 1rem;
+    display: block;
+    transition: color 0.3s ease;
+}
+
+.modal-content li a:hover {
+    color: #daa520;
+}
+
+/* Delete Form */
+.delete-form {
+    margin-top: 2rem;
+    text-align: center;
+    padding: 1rem;
+    background: rgba(139, 0, 0, 0.1);
+    border-radius: 10px;
+    border: 1px solid rgba(220, 20, 60, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .profile-container {
+        margin: 1rem;
+        padding: 1rem;
+    }
+    
+    .profile-title {
+        font-size: 2rem;
+    }
+    
+    .profile-actions {
+        grid-template-columns: 1fr;
+    }
+    
+    .modal-content {
+        width: 95%;
+        margin: 10% auto;
+        padding: 1rem;
+    }
+    
+    .modal-content h2 {
+        font-size: 1.5rem;
+    }
+}
+
+/* Scrollbar Styling for Modal */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: rgba(26, 14, 10, 0.5);
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #8b4513;
+    border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #cd853f;
+}

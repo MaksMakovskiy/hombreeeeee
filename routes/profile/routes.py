@@ -1,9 +1,10 @@
-from flask import Blueprint, render_template, redirect, url_for, flash, session
+from flask import Blueprint, render_template, redirect, url_for, flash, session, request
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, EqualTo
-from crud import db, get_user_by_id
+from crud import get_user_by_id, update_user_password, delete_user, Class, Subclass, Race, Food
 from utils.decorators import login_required
+import json
 
 profile_bp = Blueprint('profile', __name__, url_prefix='/profile')
 
@@ -39,3 +40,22 @@ def delete_profile():
     flash('Ошибка при удалении аккаунта.', 'danger')
     return redirect(url_for('profile.dashboard'))
     return redirect(url_for('profile.dashboard'))
+
+@profile_bp.route("/view", methods=['GET'])
+@login_required
+def view_profile():
+    user_id = session['user_id']
+    user = get_user_by_id(user_id)
+    # Получаем объекты, которые пользователь может редактировать
+    classes = Class.query.filter(Class.editors_allowed.contains([user_id])).all()
+    subclasses = Subclass.query.filter(Subclass.editors_allowed.contains([user_id])).all()
+    races = Race.query.filter(Race.editors_allowed.contains([user_id])).all()
+    foods = Food.query.filter(Food.editors_allowed.contains([user_id])).all()
+    return render_template(
+        'profile.html.jinja',
+        user=user,
+        editable_classes=classes,
+        editable_subclasses=subclasses,
+        editable_races=races,
+        editable_foods=foods
+    )

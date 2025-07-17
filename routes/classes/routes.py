@@ -8,7 +8,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
 
-from crud import db, Class, Ability, ClassTableRow, add_comment, is_allowed_to_edit
+from crud import db, Class, Ability, ClassTableRow, User, add_comment, is_allowed_to_edit
 from utils.decorators import login_required, editor_required
 from forms.comments import CommentForm
 import json
@@ -104,6 +104,12 @@ def view_class(class_id):
     # Получаем таблицу уровней и пользовательские колонки
     class_table = ClassTableRow.query.filter_by(class_id=current_class.id).order_by(ClassTableRow.level).all()
     custom_columns = json.loads(current_class.custom_columns_json or "[]")
+    
+    # Получаем текущего пользователя для проверки в шаблоне
+    user = None
+    if session.get('user_id'):
+        user = User.query.get(session['user_id'])
+    
     return render_template(
         'view_class.html.jinja',
         current_class=current_class,
@@ -111,7 +117,8 @@ def view_class(class_id):
         class_table=class_table,
         custom_columns=custom_columns,
         comment_form=comment_form,
-        can_edit=can_edit
+        can_edit=can_edit,
+        user=user
     )
 
 @classes_bp.route("/<int:class_id>/edit", methods=['GET', 'POST'])
@@ -202,16 +209,22 @@ def edit_class(class_id):
                          custom_columns=custom_columns,
                          existing_abilities_json=json.dumps(existing_abilities))
 
-@classes_bp.route("/<int:class_id>/delete", methods=['POST'])
+@classes_bp.route("/<int:class_id>/delete", methods=['GET', 'POST'])
 @login_required
 @editor_required
 def delete_class(class_id):
     current_class = Class.query.get_or_404(class_id)
+    
+    # Проверяем права: только автор может удалить класс
+    if session['user_id'] != current_class.user_id:
+        flash('У вас нет прав для удаления этого класса.', 'danger')
+        return redirect(url_for('classes.view_class', class_id=class_id))
+    
     # CASCADE на связях Class поможет удалить Abilities и Comments
     db.session.delete(current_class)
     db.session.commit()
     flash('Класс успешно удален!', 'success')
-    return redirect(url_for('list_classes'))
+    return redirect(url_for('classes.list_classes'))
 
 @classes_bp.route("/<int:class_id>/comment", methods=['POST'])
 @login_required

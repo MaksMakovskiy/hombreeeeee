@@ -1,24 +1,49 @@
 {% extends "base.html.jinja" %}
-{% block title %}Создать расу{% endblock %}
+{% block title %}{{ 'Редактировать расу' if mode == 'edit' else 'Создать расу' }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/forms.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create-edit.css') }}">
+{% endblock %}
 {% block content %}
-<h1>{{ 'Редактирование' if mode == 'edit' else 'Создание' }} расы</h1>
-<form method="POST" id="raceForm">
-    {{ form.csrf_token }}
-    <p>
-        {{ form.name.label }} {{ form.name(class="form-control") }}
-    </p>
-    <p>
-        {{ form.description.label }} {{ form.description(class="form-control") }}
-    </p>
-    <p>
-        {{ form.image_url.label }} {{ form.image_url(class="form-control") }}
-    </p>
-    <h2>Умения</h2>
-    <div id="abilities-list"></div>
-    <button type="button" id="addAbilityBtn" class="button" style="margin-top:10px;">Добавить умение</button>
-    <input type="hidden" name="abilities_json_field" id="abilitiesJsonField" value='{{ existing_abilities_json|default("[]") }}'>
-    {{ form.submit(class="button") }}
-</form>
+<div class="create-edit-container">
+    <h1 class="page-title">{{ 'Редактирование расы' if mode == 'edit' else 'Создание новой расы' }}</h1>
+    <form method="POST" id="raceForm">
+        {{ form.csrf_token }}
+        
+        <div class="form-group">
+            {{ form.name.label(class="") }}
+            {{ form.name(class="form-control", placeholder="Введите название расы") }}
+            {% for error in form.name.errors %}
+                <span class="form-error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.description.label }}
+            {{ form.description(class="form-control", rows=5, placeholder="Опишите особенности и историю этой расы") }}
+            {% for error in form.description.errors %}
+                <span class="form-error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        
+        <div class="form-group">
+            {{ form.image_url.label }}
+            {{ form.image_url(class="form-control", placeholder="https://example.com/image.jpg") }}
+            {% for error in form.image_url.errors %}
+                <span class="form-error">{{ error }}</span>
+            {% endfor %}
+        </div>
+        
+        <div class="abilities-section">
+            <h3>Расовые умения</h3>
+            <div id="abilities-list"></div>
+            <button type="button" id="addAbilityBtn" class="add-ability-btn">⚔ Добавить умение</button>
+            <input type="hidden" name="abilities_json_field" id="abilitiesJsonField" value='{{ existing_abilities_json|default("[]") }}'>
+        </div>
+        
+        {{ form.submit(class="form-submit") }}
+    </form>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -29,12 +54,12 @@ function renderAbilities() {
     container.innerHTML = '';
     abilities.forEach((ab, idx) => {
         container.insertAdjacentHTML('beforeend', `
-            <div class="ability-edit" style="border:1px solid #ccc;padding:10px;margin-bottom:10px;">
-                <label>Название:</label>
-                <input type="text" value="${ab.name || ''}" onchange="updateAbility(${idx}, 'name', this.value)">
-                <label>Описание:</label>
-                <textarea onchange="updateAbility(${idx}, 'description', this.value)">${ab.description || ''}</textarea>
-                <button type="button" onclick="removeAbility(${idx})" style="color:red;">Удалить</button>
+            <div class="ability-item">
+                <div class="ability-controls">
+                    <input type="text" placeholder="Название умения" value="${ab.name || ''}" onchange="updateAbility(${idx}, 'name', this.value)">
+                    <button type="button" onclick="removeAbility(${idx})" class="remove-btn">✕ Удалить</button>
+                </div>
+                <textarea placeholder="Описание умения" onchange="updateAbility(${idx}, 'description', this.value)">${ab.description || ''}</textarea>
             </div>
         `);
     });

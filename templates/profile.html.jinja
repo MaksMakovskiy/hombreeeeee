@@ -1,0 +1,121 @@
+{% extends "base.html.jinja" %}
+
+{% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/profile.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-header">
+        <h1 class="profile-title">Профиль Героя</h1>
+        <p class="profile-subtitle">{{ user.username }} - Искатель приключений</p>
+    </div>
+    
+    <div class="profile-actions">
+        <button type="button" class="action-button" onclick="openModal('classesModal')">
+            Мои Классы
+        </button>
+        <button type="button" class="action-button" onclick="openModal('subclassesModal')">
+            Мои Подклассы
+        </button>
+        <button type="button" class="action-button" onclick="openModal('racesModal')">
+            Мои Расы
+        </button>
+        <button type="button" class="action-button" onclick="openModal('foodModal')">
+            Моя Провизия
+        </button>
+        <a href="{{ url_for('profile.update_profile') }}" class="action-button">
+            Сменить Пароль
+        </a>
+    </div>
+    
+    <div class="delete-form">
+        <form action="{{ url_for('profile.delete_profile') }}" method="POST" onsubmit="return confirm('Удалить аккаунт навсегда?');">
+            <input type="submit" value="Удалить Аккаунт" class="action-button delete-button">
+        </form>
+    </div>
+</div>
+
+<!-- Модальные окна -->
+<div id="classesModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('classesModal')">&times;</span>
+        <h2>Классы, которые вы можете менять</h2>
+        <input type="text" id="classSearch" placeholder="Поиск по имени..." oninput="filterList('classSearch', 'classList', 'class')">
+        <ul id="classList">
+            {% for c in editable_classes %}
+                <li><a href="{{ url_for('classes.edit_class', class_id=c.id) }}">{{ c.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div id="subclassesModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('subclassesModal')">&times;</span>
+        <h2>Подклассы, которые вы можете менять</h2>
+        <input type="text" id="subclassSearch" placeholder="Поиск по названию класса или подкласса..." oninput="filterList('subclassSearch', 'subclassList', 'subclass')">
+        <ul id="subclassList">
+            {% for s in editable_subclasses %}
+                <li>
+                    <a href="{{ url_for('subclasses.edit_subclass', subclass_id=s.id) }}">
+                        {{ s.name }} ({{ s.parent_class.name }})
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div id="racesModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('racesModal')">&times;</span>
+        <h2>Расы, которые вы можете менять</h2>
+        <input type="text" id="raceSearch" placeholder="Поиск по имени..." oninput="filterList('raceSearch', 'raceList', 'race')">
+        <ul id="raceList">
+            {% for r in editable_races %}
+                <li><a href="{{ url_for('races.edit_race', race_id=r.id) }}">{{ r.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+<div id="foodModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal('foodModal')">&times;</span>
+        <h2>Еда, которую вы можете менять</h2>
+        <input type="text" id="foodSearch" placeholder="Поиск по названию..." oninput="filterList('foodSearch', 'foodList', 'food')">
+        <ul id="foodList">
+            {% for f in editable_foods %}
+                <li><a href="{{ url_for('food.edit_food', food_id=f.id) }}">{{ f.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+function openModal(id) {
+    document.getElementById(id).style.display = "block";
+}
+function closeModal(id) {
+    document.getElementById(id).style.display = "none";
+}
+function filterList(inputId, listId, type) {
+    const input = document.getElementById(inputId).value.toLowerCase();
+    const items = document.querySelectorAll(`#${listId} li`);
+    items.forEach(li => {
+        let text = li.textContent.toLowerCase();
+        if (type === 'subclass') {
+            // подкласс: ищем по названию подкласса или класса
+            text = text.toLowerCase();
+        }
+        li.style.display = text.includes(input) ? "" : "none";
+    });
+}
+// Закрытие по клику вне модалки
+window.onclick = function(event) {
+    ['classesModal','subclassesModal','racesModal','foodModal'].forEach(function(id){
+        const modal = document.getElementById(id);
+        if (event.target === modal) modal.style.display = "none";
+    });
+};
+</script>
+{% endblock %}

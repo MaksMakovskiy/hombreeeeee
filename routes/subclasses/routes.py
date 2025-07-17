@@ -95,16 +95,86 @@ def add_subclass_comment(subclass_id):
 @login_required
 @editor_required
 def edit_subclass(subclass_id):
-    # ... existing edit logic ...
-    pass
+    current_subclass = Subclass.query.get_or_404(subclass_id)
+    form = SubclassForm(obj=current_subclass)
+    
+    # Загружаем существующие способности
+    existing_abilities = [
+        {
+            'id': ab.id,
+            'name': ab.name,
+            'description': ab.description,
+            'level': ab.level,
+            'type': ab.type
+        }
+        for ab in Ability.query.filter_by(subclass_id=subclass_id).order_by(Ability.level).all()
+    ]
+
+    if form.validate_on_submit():
+        try:
+            abilities_data = json.loads(form.abilities_json_field.data or "[]")
+        except json.JSONDecodeError:
+            flash('Ошибка в формате данных способностей.', 'danger')
+            return render_template('create_edit_subclass.html.jinja', form=form, mode='edit', 
+                                 content_id=subclass_id, content_object=current_subclass, existing_abilities=existing_abilities)
+
+        # Проверка что выбран корректный класс
+        if form.class_id.data == 0:
+            flash('Выберите родительский класс.', 'danger')
+            return render_template('create_edit_subclass.html.jinja', form=form, mode='edit',
+                                 content_id=subclass_id, content_object=current_subclass, existing_abilities=existing_abilities)
+
+        # Обновление основной информации
+        current_subclass.name = form.name.data
+        current_subclass.description = form.description.data
+        current_subclass.class_id = form.class_id.data
+
+        # Удаляем старые способности и добавляем новые
+        old_abilities = Ability.query.filter_by(subclass_id=subclass_id).all()
+        for ab in old_abilities:
+            db.session.delete(ab)
+
+        # Добавляем новые способности
+        for ability_data in abilities_data:
+            try:
+                level_val = int(ability_data.get('level', 1))
+            except (ValueError, TypeError):
+                level_val = 1
+            
+            ability = Ability(
+                name=ability_data.get('name', ''),
+                description=ability_data.get('description', ''),
+                level=level_val,
+                type=ability_data.get('type', ''),
+                subclass_id=current_subclass.id
+            )
+            db.session.add(ability)
+
+        db.session.commit()
+        flash('Подкласс успешно обновлен!', 'success')
+        return redirect(url_for('subclasses.view_subclass', subclass_id=current_subclass.id))
+
+    return render_template('create_edit_subclass.html.jinja',
+                         form=form,
+                         mode='edit',
+                         content_id=subclass_id,
+                         content_object=current_subclass,
+                         existing_abilities=existing_abilities)
 
 @subclasses_bp.route("/<int:subclass_id>/delete", methods=['POST'])
 @login_required
 @editor_required
 def delete_subclass(subclass_id):
-    # ... existing delete logic ...
-    pass
-    pass
-    # ... existing delete logic ...
-    pass
-    pass
+    current_subclass = Subclass.query.get_or_404(subclass_id)
+    
+    # Удаляем связанные способности
+    abilities = Ability.query.filter_by(subclass_id=subclass_id).all()
+    for ability in abilities:
+        db.session.delete(ability)
+    
+    # Удаляем сам подкласс
+    db.session.delete(current_subclass)
+    db.session.commit()
+    
+    flash(f'Подкласс "{current_subclass.name}" успешно удален.', 'success')
+    return redirect(url_for('subclasses.list_subclasses'))

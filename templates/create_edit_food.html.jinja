@@ -1,0 +1,24 @@
+{% extends "base.html.jinja" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style_food_form.css') }}">
+{% endblock %}
+{% block content %}
+    <div class="centered-form">
+        <h1>{{ 'Редактирование' if mode == 'edit' else 'Добавление' }} еды</h1>
+        <form method="POST">
+            {{ form.csrf_token }}
+            <div>
+                {{ form.name.label }} {{ form.name(class="form-control") }}
+            </div>
+            <div>
+                {{ form.description.label }} {{ form.description(class="form-control") }}
+            </div>
+            <div>
+                {{ form.image_url.label }} {{ form.image_url(class="form-control") }}
+            </div>
+            <div>
+                {{ form.submit(class="button") }}
+            </div>
+        </form>
+    </div>
+{% endblock %}

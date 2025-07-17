@@ -2,43 +2,138 @@
 
 {% block title %}Панель управления{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+{% endblock %}
+
 {% block content %}
-    <h2>Добро пожаловать, {{ g.user.username }}!</h2>
-    <p>Это ваша личная панель управления. Доступна только для вошедших пользователей.</p>
+<div class="dashboard-container">
+    <div class="welcome-section">
+        <h1 class="dashboard-title">🏠 Добро пожаловать, {{ g.user.username }}!</h1>
+        <p class="dashboard-subtitle">Ваша личная панель управления контентом</p>
+    </div>
     
-    <h3>Действия с аккаунтом:</h3>
-    <ul>
-        <li><a href="{{ url_for('profile.update_profile') }}">Изменить пароль</a></li>
-        <li>
-            <form action="{{ url_for('profile.delete_profile') }}" method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить свой аккаунт? Это действие необратимо.');">
-                <input type="submit" value="Удалить аккаунт" class="delete-button">
-            </form>
-        </li>
-    </ul>
+    <div class="dashboard-grid">
+        <!-- Account Management -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>⚙️ Управление аккаунтом</h3>
+            </div>
+            <div class="card-content">
+                <a href="{{ url_for('profile.update_profile') }}" class="dashboard-action-btn">
+                    🔧 Изменить пароль
+                </a>
+                <form action="{{ url_for('profile.delete_profile') }}" method="POST" 
+                      onsubmit="return confirm('Вы уверены, что хотите удалить свой аккаунт? Это действие необратимо.');" 
+                      class="delete-form">
+                    <input type="submit" value="🗑️ Удалить аккаунт" class="delete-button">
+                </form>
+            </div>
+        </div>
 
-    <h3>Ваши Классы:</h3>
-    {% if user_classes %}
-        <ul>
-            {% for cls in user_classes %}
-                <li><a href="{{ url_for('classes.view_class', class_id=cls.id) }}">{{ cls.name }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Вы пока не создали ни одного класса.</p>
-    {% endif %}
+        <!-- Classes -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>⚔️ Ваши Классы</h3>
+                <span class="item-count">{{ user_classes|length if user_classes else 0 }}</span>
+            </div>
+            <div class="card-content">
+                {% if user_classes %}
+                    <div class="items-list">
+                        {% for cls in user_classes %}
+                            <div class="item-link">
+                                <a href="{{ url_for('classes.view_class', class_id=cls.id) }}">{{ cls.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">Вы пока не создали ни одного класса</p>
+                {% endif %}
+                <a href="{{ url_for('classes.create_class') }}" class="create-btn">➕ Создать новый класс</a>
+            </div>
+        </div>
 
-    <h3>Ваши Подклассы:</h3>
-    {% if user_subclasses %}
-        <ul>
-            {% for sub in user_subclasses %}
-                <li><a href="{{ url_for('subclasses.view_subclass', subclass_id=sub.id) }}">{{ sub.name }}</a> (для {{ sub.parent_class.name }})</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>Вы пока не создали ни одного подкласса.</p>
-    {% endif %}
+        <!-- Subclasses -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>📚 Ваши Подклассы</h3>
+                <span class="item-count">{{ user_subclasses|length if user_subclasses else 0 }}</span>
+            </div>
+            <div class="card-content">
+                {% if user_subclasses %}
+                    <div class="items-list">
+                        {% for sub in user_subclasses %}
+                            <div class="item-link">
+                                <a href="{{ url_for('subclasses.view_subclass', subclass_id=sub.id) }}">{{ sub.name }}</a>
+                                <span class="item-meta">для {{ sub.parent_class.name }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">Вы пока не создали ни одного подкласса</p>
+                {% endif %}
+                <a href="{{ url_for('subclasses.create_subclass') }}" class="create-btn">➕ Создать новый подкласс</a>
+            </div>
+        </div>
 
-    <p><a href="{{ url_for('classes.create_class') }}">Создать новый Класс</a></p>
-    <p><a href="{{ url_for('subclasses.create_subclass') }}">Создать новый Подкласс</a></p>
+        <!-- Races -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>🧝 Ваши Расы</h3>
+                <span class="item-count">{{ user_races|length if user_races else 0 }}</span>
+            </div>
+            <div class="card-content">
+                {% if user_races %}
+                    <div class="items-list">
+                        {% for race in user_races %}
+                            <div class="item-link">
+                                <a href="{{ url_for('races.view_race', race_id=race.id) }}">{{ race.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">Вы пока не создали ни одной расы</p>
+                {% endif %}
+                <a href="{{ url_for('races.create_race') }}" class="create-btn">➕ Создать новую расу</a>
+            </div>
+        </div>
 
+        <!-- Food -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>🍖 Ваша Еда</h3>
+                <span class="item-count">{{ user_foods|length if user_foods else 0 }}</span>
+            </div>
+            <div class="card-content">
+                {% if user_foods %}
+                    <div class="items-list">
+                        {% for food in user_foods %}
+                            <div class="item-link">
+                                <a href="{{ url_for('food.view_food', food_id=food.id) }}">{{ food.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">Вы пока не создали ни одного рецепта</p>
+                {% endif %}
+                <a href="{{ url_for('food.create_food') }}" class="create-btn">➕ Создать новый рецепт</a>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="dashboard-card stats-card">
+            <div class="card-header">
+                <h3>📊 Статистика</h3>
+            </div>
+            <div class="card-content">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="stat-number">{{ (user_classes|length + user_subclasses|length + user_races|length + user_foods|length) if (user_classes or user_subclasses or user_races or user_foods) else 0 }}</span>
+                        <span class="stat-label">Всего контента</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

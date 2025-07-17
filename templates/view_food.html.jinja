@@ -4,20 +4,20 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/comments.css') }}">
 {% endblock %}
 {% block content %}
-<div class="race-section">
-    <div class="race-info">
-        <h1>{{ race.name }}</h1>
-        {% if race.image_url %}
-            <img src="{{ race.image_url }}" alt="Картинка расы">
+<div class="food-section">
+    <div class="food-info">
+        <h1>{{ food.name }}</h1>
+        {% if food.image_url %}
+            <img src="{{ food.image_url }}" alt="Картинка еды">
         {% endif %}
-        <p>{{ race.description | nl2br }}</p>
+        <p>{{ food.description | nl2br }}</p>
         
-        {% if user and (user.id == race.user_id or user.id in (race.editors_allowed or [])) %}
+        {% if user and (user.id == food.user_id or user.id in (food.editors_allowed or [])) %}
             <div class="action-buttons">
-                <a href="{{ url_for('races.edit_race', race_id=race.id) }}" class="edit-btn">✏️ Редактировать расу</a>
-                <a href="{{ url_for('races.grant_edit_race', race_id=race.id) }}" class="manage-btn">👥 Управление правами</a>
-                {% if user.id == race.user_id %}
-                    <button type="button" class="delete-btn" onclick="confirmDelete('{{ url_for('races.delete_race', race_id=race.id) }}', '{{ race.name }}')">🗑️ Удалить расу</button>
+                <a href="{{ url_for('food.edit_food', food_id=food.id) }}" class="edit-btn">✏️ Редактировать еду</a>
+                <a href="{{ url_for('food.grant_edit_food', food_id=food.id) }}" class="manage-btn">👥 Управление правами</a>
+                {% if user.id == food.user_id %}
+                    <button type="button" class="delete-btn" onclick="confirmDelete('{{ url_for('food.delete_food', food_id=food.id) }}', '{{ food.name }}')">🗑️ Удалить еду</button>
                 {% endif %}
             </div>
         {% endif %}
@@ -44,10 +44,10 @@
         {% endif %}
         {% if user %}
             <div class="comment-form">
-                <form method="POST" action="{{ url_for('races.add_comment', race_id=race.id) }}">
+                <form method="POST" action="{{ url_for('food.add_comment', food_id=food.id) }}">
                     {{ comment_form.csrf_token }}
                     <div class="comment-form-fields">
-                        {{ comment_form.text(rows=4, class="form-control", placeholder="Поделитесь своими мыслями об этой расе...") }}
+                        {{ comment_form.text(rows=4, class="form-control", placeholder="Поделитесь своими мыслями об этой еде...") }}
                         {% for error in comment_form.text.errors %}
                             <span class="form-error">{{ error }}</span>
                         {% endfor %}

@@ -1,65 +1,73 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Мое Flask Приложение{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>{% block title %}D&D Платформа{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Merriweather:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style_base.css') }}">
+    {% block extra_css %}{% endblock %}
+    {% block extra_js %}{% endblock %}
 </head>
+<body>
     <div class="sidebar">
-        <!-- Секция 1: Классы и Расы -->
         <div class="sidebar-section">
-            <div class="sidebar-title">Классы</div>
+            <div class="sidebar-title">Навигация</div>
             <ul class="sidebar-list">
-                <li>
-                    <a href="{{ url_for('classes.list_classes') }}">Все классы</a>
-                </li>
-                <li>
-                    <a href="{{ url_for('subclasses.list_subclasses') }}">Все подклассы</a>
-                </li>
-            </ul>
-            <div class="sidebar-title">Расы</div>
-            <ul class="sidebar-list">
-                <li><a href="{{ url_for('races.list_races') }}">Все расы</a></li>
+                <li><a href="{{ url_for('classes.list_classes') }}" class="nav-btn">Классы</a></li>
+                <li><a href="{{ url_for('subclasses.list_subclasses') }}" class="nav-btn">Подклассы</a></li>
+                <li><a href="{{ url_for('races.list_races') }}" class="nav-btn">Расы</a></li>
+                <li><a href="{{ url_for('food.list_food') }}" class="nav-btn">Еда</a></li>
             </ul>
         </div>
-        <!-- Секция 2: Профиль и выход -->
-        <div class="sidebar-section sidebar-section-bottom">
+        <div class="profile-section">
             {% if user %}
-                <div class="sidebar-title">Профиль</div>
-                <ul class="sidebar-list">
-                    <li><a href="{{ url_for('main.dashboard') }}">Мой кабинет</a></li>
-                    <li><a href="{{ url_for('profile.update_profile') }}">Сменить пароль</a></li>
-                    <li>
-                        <form action="{{ url_for('auth.logout') }}" method="get" style="display:inline;">
-                            <button type="submit" class="sidebar-link-btn">Выйти</button>
-                        </form>
-                    </li>
-                </ul>
+                <div style="margin-bottom:10px;">
+                    <span style="color:#ffe082;font-weight:bold;">{{ user.username }}</span>
+                </div>
+                <a href="{{ url_for('profile.view_profile') }}" class="button">Профиль</a>
+                <form action="{{ url_for('auth.logout') }}" method="POST" style="display:inline;">
+                    {{ logout_form.hidden_tag() }}
+                    {{ logout_form.submit(class="button logout-button") }}
+                </form>
             {% else %}
-                <ul class="sidebar-list">
-                    <li><a href="{{ url_for('auth.login') }}">Войти</a></li>
-                    <li><a href="{{ url_for('auth.register') }}">Регистрация</a></li>
-                </ul>
+                <a href="{{ url_for('auth.login') }}" class="button">Войти</a>
+                <a href="{{ url_for('auth.register') }}" class="button">Регистрация</a>
             {% endif %}
         </div>
     </div>
-
-    <div class="content">
-        {# Отображение flash-сообщений #}
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                    {% for category, message in messages %}
-                        <li class="{{ category }}">{{ message }}</li>
-                    {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-
-        {# Основной контент страницы будет здесь #}
+    <div class="main-content">
         {% block content %}{% endblock %}
     </div>
+    {% block modals %}{% endblock %}
+    <script>
+    // Глобальный JS для модалок (работает для всех страниц)
+    function openModal(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.style.display = "block";
+        }
+    }
+    function closeModal(id) {
+        var modal = document.getElementById(id);
+        if (modal) {
+            modal.style.display = "none";
+        }
+    }
+    window.onclick = function(event) {
+        var modals = document.querySelectorAll('.modal');
+        modals.forEach(function(modal){
+            if (event.target === modal) modal.style.display = "none";
+        });
+    };
+    
+    // Функция подтверждения удаления
+    function confirmDelete(url, itemName) {
+        if (confirm('Вы уверены, что хотите удалить "' + itemName + '"? Это действие нельзя отменить.')) {
+            window.location.href = url;
+        }
+    }
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

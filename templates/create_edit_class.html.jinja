@@ -1,110 +1,203 @@
 {% extends "base.html.jinja" %}
 {% block title %}{{ 'Редактировать класс' if mode == 'edit' else 'Создать класс' }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create-edit.css') }}">
+{% endblock %}
 {% block content %}
-<h1>{{ 'Редактировать класс' if mode == 'edit' else 'Создать класс' }}</h1>
-<form method="post" id="classForm">
-    {{ form.hidden_tag() }}
-    <p>
-        {{ form.name.label }}<br>
-        {{ form.name(size=40) }}
-    </p>
-    <p>
-        {{ form.description.label }}<br>
-        {{ form.description(rows=3, cols=40) }}
-    </p>
-    <p>
-        {{ form.hit_dice.label }}<br>
-        {{ form.hit_dice(size=40) }}
-    </p>
-    <p>
-        {{ form.hit_points_first.label }}<br>
-        {{ form.hit_points_first(size=40) }}
-    </p>
-    <p>
-        {{ form.hit_points_next.label }}<br>
-        {{ form.hit_points_next(size=40) }}
-    </p>
-    <p>
-        {{ form.armor_proficiencies.label }}<br>
-        {{ form.armor_proficiencies(size=40) }}
-    </p>
-    <p>
-        {{ form.weapon_proficiencies.label }}<br>
-        {{ form.weapon_proficiencies(size=40) }}
-    </p>
-    <p>
-        {{ form.tool_proficiencies.label }}<br>
-        {{ form.tool_proficiencies(size=40) }}
-    </p>
-    <p>
-        {{ form.saving_throws.label }}<br>
-        {{ form.saving_throws(size=40) }}
-    </p>
-    <p>
-        {{ form.skills.label }}<br>
-        {{ form.skills(size=40) }}
-    </p>
-    {% if mode == 'edit' %}
-    <h2>Таблица развития класса</h2>
-    <div class="table-controls" style="display: flex; align-items: center;">
-        <span style="margin-left:auto;">
-            <button type="button" id="addColumnBtn" style="background:none;border:none;font-size:2em;cursor:pointer;" title="Добавить колонку">+</button>
-        </span>
-    </div>
-    
-    <table id="classTable">
-        <thead>
-            <tr>
-                <th>Уровень</th>
-                <th>Бонус мастерства</th>
-                {% for col in custom_columns %}
-                    <th>
-                        <span>{{ col }}</span>
-                        <span class="remove-col" data-col="{{ col }}" style="color:red;cursor:pointer;font-weight:bold;margin-left:5px;">&#10006;</span>
-                    </th>
+<div class="crea        addColumnBtn.onclick = function() {
+            modal.classList.add('show');
+            modalInput.value = '';
+            modalInput.focus();
+        };
+        modalCancelBtn.onclick = function() {
+            modal.classList.remove('show');
+        };
+        
+        // Закрытие модального окна при клике на фон
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('show');
+            }
+        };
+        
+        // Закрытие модального окна по ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('show')) {
+                modal.classList.remove('show');
+            }
+        });container">
+    <h1 class="page-title">{{ 'Редактировать класс' if mode == 'edit' else 'Создать класс' }}</h1>
+    <form method="post" id="classForm">
+        {{ form.hidden_tag() }}
+        
+        <div class="form-section">
+            <h3>Основная информация</h3>
+            
+            <div class="form-group">
+                {{ form.name.label(class="form-label") }}
+                {{ form.name(class="form-input", size=40) }}
+                {% for error in form.name.errors %}
+                    <span class="form-error">{{ error }}</span>
                 {% endfor %}
-            </tr>
-        </thead>
-        <tbody>
-            {% for row in class_table %}
-            <tr data-level="{{ row.level }}">
-                <td>{{ row.level }}</td>
-                <td>
-                    <input type="number" 
-                           name="proficiency_{{ row.level }}" 
-                           value="{{ row.proficiency_bonus }}"
-                           min="2" max="6">
-                </td>
-                {% for col in custom_columns %}
-                    <td>
-                        <input type="text" 
-                               name="custom_{{ col }}_{{ row.level }}"
-                               value="{{ row.custom.get(col, '') }}">
-                    </td>
+            </div>
+            
+            <div class="form-group">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-textarea", rows=4, cols=40) }}
+                {% for error in form.description.errors %}
+                    <span class="form-error">{{ error }}</span>
                 {% endfor %}
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    <input type="hidden" name="custom_columns" id="customColumnsData">
-    <input type="hidden" name="table_data" id="tableData">
-    {% endif %}
+            </div>
+        </div>
 
-    <h3>Способности</h3>
-    <div id="abilities-container"></div>
-    <button type="button" id="add-ability-btn" class="button">+ Добавить способность</button>
-    {{ form.abilities_json_field(id="abilities_json_field") }}
-    <br><br>
-    <input type="submit" value="Сохранить" class="button">
-</form>
+        <div class="form-section">
+            <h3>Характеристики класса</h3>
+            
+            <div class="form-group">
+                {{ form.hit_dice.label(class="form-label") }}
+                {{ form.hit_dice(class="form-input", size=40) }}
+                {% for error in form.hit_dice.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.hit_points_first.label(class="form-label") }}
+                {{ form.hit_points_first(class="form-input", size=40) }}
+                {% for error in form.hit_points_first.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.hit_points_next.label(class="form-label") }}
+                {{ form.hit_points_next(class="form-input", size=40) }}
+                {% for error in form.hit_points_next.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3>Владения</h3>
+            
+            <div class="form-group">
+                {{ form.armor_proficiencies.label(class="form-label") }}
+                {{ form.armor_proficiencies(class="form-textarea", rows=3, cols=40) }}
+                {% for error in form.armor_proficiencies.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.weapon_proficiencies.label(class="form-label") }}
+                {{ form.weapon_proficiencies(class="form-textarea", rows=3, cols=40) }}
+                {% for error in form.weapon_proficiencies.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.tool_proficiencies.label(class="form-label") }}
+                {{ form.tool_proficiencies(class="form-textarea", rows=3, cols=40) }}
+                {% for error in form.tool_proficiencies.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.saving_throws.label(class="form-label") }}
+                {{ form.saving_throws(class="form-input", size=40) }}
+                {% for error in form.saving_throws.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+            
+            <div class="form-group">
+                {{ form.skills.label(class="form-label") }}
+                {{ form.skills(class="form-textarea", rows=3, cols=40) }}
+                {% for error in form.skills.errors %}
+                    <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        
+        {% if mode == 'edit' %}
+        <div class="table-section">
+            <h3>Таблица развития класса</h3>
+            <div class="table-controls" style="display: flex; flex-wrap: wrap; align-items: center; justify-content: center; margin-bottom: 15px; gap: 10px;">
+                <button type="button" id="addColumnBtn" class="add-column-btn" title="Добавить колонку">✨ Добавить колонку</button>
+            </div>
+            
+            <div class="table-wrapper">
+                <table id="classTable" class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Уровень</th>
+                            <th>Бонус мастерства</th>
+                            {% for col in custom_columns %}
+                                <th>
+                                    <span>{{ col }}</span>
+                                    <span class="remove-col" data-col="{{ col }}" style="color:#cd4054;cursor:pointer;font-weight:bold;margin-left:5px;" title="Удалить колонку">✖</span>
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in class_table %}
+                        <tr data-level="{{ row.level }}">
+                            <td>{{ row.level }}</td>
+                        <td>
+                            <input type="number" 
+                                   name="proficiency_{{ row.level }}" 
+                                   value="{{ row.proficiency_bonus }}"
+                                   min="2" max="6">
+                        </td>
+                        {% for col in custom_columns %}
+                            <td>
+                                <input type="text" 
+                                       name="custom_{{ col }}_{{ row.level }}"
+                                       value="{{ row.custom.get(col, '') }}">
+                            </td>
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+            <input type="hidden" name="custom_columns" id="customColumnsData">
+            <input type="hidden" name="table_data" id="tableData">
+        </div>
+        {% endif %}
+
+        <div class="abilities-section">
+            <h3>Способности класса</h3>
+            <div id="abilities-container"></div>
+            <button type="button" id="add-ability-btn" class="add-ability-btn">✨ Добавить способность</button>
+            {{ form.abilities_json_field(id="abilities_json_field") }}
+        </div>
+        
+        <div class="form-actions">
+            <input type="submit" value="Сохранить" class="form-submit">
+            <a href="{{ url_for('classes.list_classes') }}" class="cancel-btn">Отмена</a>
+        </div>
+    </form>
+</div>
 
 <!-- Модалка для ввода названия новой колонки -->
-<div id="columnModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.3);align-items:center;justify-content:center;">
-    <div style="background:#fff;padding:20px;border-radius:8px;min-width:300px;box-shadow:0 2px 8px #0002;">
-        <label for="modalColumnName">Название новой колонки:</label>
-        <input type="text" id="modalColumnName" style="width:100%;margin-bottom:10px;">
-        <button type="button" id="modalAddBtn" class="button">Добавить</button>
-        <button type="button" id="modalCancelBtn" class="button" style="background:#eee;color:#333;">Отмена</button>
+<div id="columnModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Добавить новую колонку</h3>
+        </div>
+        <div class="modal-body">
+            <label for="modalColumnName">Название новой колонки:</label>
+            <input type="text" id="modalColumnName" placeholder="Введите название колонки...">
+        </div>
+        <div class="modal-footer">
+            <button type="button" id="modalAddBtn" class="modal-btn modal-btn-primary">Добавить</button>
+            <button type="button" id="modalCancelBtn" class="modal-btn modal-btn-secondary">Отмена</button>
+        </div>
     </div>
 </div>
 
@@ -115,20 +208,41 @@
     function renderAbilities() {
         const container = document.getElementById('abilities-container');
         container.innerHTML = '';
-        abilities.forEach((ab, idx) => {
-            const div = document.createElement('div');
-            div.className = 'ability-item';
-            div.innerHTML = `
-                <label>Название: <input type="text" value="${ab.name || ''}" data-idx="${idx}" data-field="name"></label>
-                <label>Описание: <input type="text" value="${ab.description || ''}" data-idx="${idx}" data-field="description"></label>
-                <label>Уровень: <input type="number" value="${ab.level || 1}" data-idx="${idx}" data-field="level"></label>
-                <label>Тип: <input type="text" value="${ab.type || ''}" data-idx="${idx}" data-field="type"></label>
-                <button type="button" class="remove-ability-btn" data-idx="${idx}">Удалить</button>
-            `;
-            container.appendChild(div);
-        });
+        
+        if (abilities.length === 0) {
+            container.innerHTML = '<p style="color: #cd853f; text-align: center; font-style: italic; padding: 20px;">Пока нет способностей. Нажмите "Добавить способность" чтобы создать первую.</p>';
+        } else {
+            abilities.forEach((ab, idx) => {
+                const div = document.createElement('div');
+                div.className = 'ability-item';
+                div.innerHTML = `
+                    <h4>Способность ${idx + 1}</h4>
+                    <div class="ability-controls">
+                        <div class="form-group">
+                            <label class="form-label">Название:</label>
+                            <input type="text" value="${ab.name || ''}" data-idx="${idx}" data-field="name" placeholder="Введите название способности" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Уровень:</label>
+                            <input type="number" value="${ab.level || 1}" data-idx="${idx}" data-field="level" min="1" max="20" class="form-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Тип:</label>
+                            <input type="text" value="${ab.type || ''}" data-idx="${idx}" data-field="type" placeholder="Например: Активная, Пассивная" class="form-input">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Описание:</label>
+                        <textarea rows="3" data-idx="${idx}" data-field="description" placeholder="Введите описание способности" class="form-textarea">${ab.description || ''}</textarea>
+                    </div>
+                    <button type="button" class="remove-btn" data-idx="${idx}">🗑️ Удалить способность</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+        
         // События для удаления
-        document.querySelectorAll('.remove-ability-btn').forEach(btn => {
+        document.querySelectorAll('.remove-btn').forEach(btn => {
             btn.onclick = function() {
                 const idx = +btn.getAttribute('data-idx');
                 abilities.splice(idx, 1);
@@ -137,7 +251,7 @@
             }
         });
         // События для изменения
-        container.querySelectorAll('input').forEach(inp => {
+        container.querySelectorAll('input, textarea').forEach(inp => {
             inp.oninput = function() {
                 const idx = +inp.getAttribute('data-idx');
                 const field = inp.getAttribute('data-field');
@@ -233,7 +347,7 @@
                     </td>
                 `);
             });
-            modal.style.display = 'none';
+            modal.classList.remove('show');
             updateHiddenFields();
         }
         // Удаление колонки на клиенте

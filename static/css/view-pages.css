@@ -1,0 +1,481 @@
+/* View Pages Styles - Dark D&D Theme */
+
+/* Race View Specific Styles */
+.race-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border-radius: 20px;
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.8),
+        inset 0 2px 12px rgba(205, 133, 63, 0.1);
+    position: relative;
+    margin-top: 30px;
+}
+
+.race-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #8b4513 0%, #cd853f 25%, #daa520 50%, #cd853f 75%, #8b4513 100%);
+    border-radius: 20px 20px 0 0;
+}
+
+.race-info {
+    border-bottom: 3px solid #8b4513;
+    padding-bottom: 30px;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.race-info::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 25%;
+    right: 25%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #cd853f 50%, transparent 100%);
+}
+
+.race-info h1 {
+    color: #cd853f;
+    font-family: 'Cinzel', serif;
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(205, 133, 63, 0.3);
+    letter-spacing: 2px;
+    position: relative;
+}
+
+.race-info h1::after {
+    content: '⚔';
+    position: absolute;
+    top: 50%;
+    left: -50px;
+    transform: translateY(-50%);
+    font-size: 0.6em;
+    color: #8b4513;
+}
+
+.race-info h1::before {
+    content: '⚔';
+    position: absolute;
+    top: 50%;
+    right: -50px;
+    transform: translateY(-50%) scaleX(-1);
+    font-size: 0.6em;
+    color: #8b4513;
+}
+
+.race-info img {
+    display: block;
+    margin: 0 auto 25px;
+    border-radius: 15px;
+    border: 3px solid #8b4513;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(139, 69, 19, 0.4);
+    max-width: 300px;
+    transition: transform 0.3s ease;
+}
+
+.race-info img:hover {
+    transform: scale(1.05);
+}
+
+.race-info p {
+    color: #f3e7c6;
+    line-height: 1.8;
+    font-size: 1.1em;
+    text-align: justify;
+    margin: 20px 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Abilities Section */
+.abilities-section {
+    margin: 40px 0;
+}
+
+.abilities-section h2 {
+    color: #cd853f;
+    font-family: 'Cinzel', serif;
+    font-size: 1.8em;
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.ability-item {
+    background: linear-gradient(135deg, #2a2620 0%, #1f1f1f 100%);
+    border: 2px solid #8b4513;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.6),
+        inset 0 1px 3px rgba(205, 133, 63, 0.2);
+}
+
+.ability-item h3 {
+    color: #cd853f;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 10px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.ability-item p {
+    color: #f3e7c6;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Edit button styles */
+.edit-btn {
+    background: linear-gradient(135deg, #4a4a4a 0%, #6a6a6a 100%);
+    color: #f3e7c6;
+    border: 2px solid #8b4513;
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 20px 0;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.edit-btn:hover {
+    background: linear-gradient(135deg, #5a5a5a 0%, #7a7a7a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Action buttons container */
+.action-buttons {
+    text-align: center;
+    margin: 30px 0;
+    padding: 20px;
+    border-top: 2px solid #8b4513;
+    border-bottom: 2px solid #8b4513;
+}
+
+.action-buttons .button {
+    margin: 0 10px;
+}
+
+/* Manage button styles */
+.manage-btn {
+    background: linear-gradient(135deg, #2d5016 0%, #4a7c27 100%);
+    color: #f3e7c6;
+    border: 2px solid #cd853f;
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    margin: 20px 10px;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.manage-btn:hover {
+    background: linear-gradient(135deg, #3d6026 0%, #5a8c37 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+}
+
+/* Delete button styles */
+.delete-btn {
+    background: linear-gradient(135deg, #7a1a1a 0%, #a02626 100%);
+    color: #fff;
+    border: 2px solid #8b0000;
+    padding: 10px 20px;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 20px 10px;
+    transition: all 0.3s ease;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.delete-btn:hover {
+    background: linear-gradient(135deg, #8a2a2a 0%, #b03636 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(139, 0, 0, 0.4);
+}
+
+/* Food View Specific Styles */
+.food-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border-radius: 20px;
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.8),
+        inset 0 2px 12px rgba(205, 133, 63, 0.1);
+    position: relative;
+    margin-top: 30px;
+}
+
+.food-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #8b4513 0%, #cd853f 25%, #daa520 50%, #cd853f 75%, #8b4513 100%);
+    border-radius: 20px 20px 0 0;
+}
+
+.food-info {
+    border-bottom: 3px solid #8b4513;
+    padding-bottom: 30px;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.food-info::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: 25%;
+    right: 25%;
+    height: 3px;
+    background: linear-gradient(90deg, transparent 0%, #cd853f 50%, transparent 100%);
+}
+
+.food-info h1 {
+    color: #cd853f;
+    font-family: 'Cinzel', serif;
+    font-size: 2.5em;
+    text-align: center;
+    margin-bottom: 25px;
+    text-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(205, 133, 63, 0.3);
+    letter-spacing: 2px;
+    position: relative;
+}
+
+.food-info h1::after {
+    content: '🍖';
+    position: absolute;
+    top: 50%;
+    left: -60px;
+    transform: translateY(-50%);
+    font-size: 0.6em;
+}
+
+.food-info h1::before {
+    content: '🍖';
+    position: absolute;
+    top: 50%;
+    right: -60px;
+    transform: translateY(-50%);
+    font-size: 0.6em;
+}
+
+.food-info img {
+    display: block;
+    margin: 0 auto 25px;
+    border-radius: 15px;
+    border: 3px solid #8b4513;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        0 0 20px rgba(139, 69, 19, 0.4);
+    max-width: 300px;
+    transition: transform 0.3s ease;
+}
+
+.food-info img:hover {
+    transform: scale(1.05);
+}
+
+.food-info p {
+    color: #f3e7c6;
+    line-height: 1.8;
+    font-size: 1.1em;
+    text-align: justify;
+    margin: 20px 0;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Class View Specific Styles */
+.class-characteristics {
+    margin: 30px 0;
+}
+
+.characteristics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.char-item {
+    background: rgba(139, 69, 19, 0.2);
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #8b4513;
+    color: #f4e4bc;
+    font-family: 'Merriweather', serif;
+    transition: all 0.3s ease;
+}
+
+.char-item:hover {
+    background: rgba(139, 69, 19, 0.3);
+    border-left-color: #cd853f;
+    transform: translateX(5px);
+}
+
+.char-item strong {
+    color: #daa520;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.class-table-section {
+    margin: 40px 0;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 2px solid #8b4513;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.6);
+}
+
+.class-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: linear-gradient(135deg, #1a0e0a 0%, #2d1810 50%, #1a0e0a 100%);
+    color: #f4e4bc;
+    font-family: 'Merriweather', serif;
+}
+
+.class-table thead th {
+    background: linear-gradient(135deg, #8b4513, #a0522d);
+    color: #f4e4bc;
+    padding: 15px;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-weight: bold;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid #cd853f;
+}
+
+.class-table tbody td {
+    padding: 12px 15px;
+    text-align: center;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.3);
+    transition: background-color 0.3s ease;
+}
+
+.class-table tbody tr:hover {
+    background: rgba(139, 69, 19, 0.1);
+}
+
+.class-table tbody tr:nth-child(even) {
+    background: rgba(26, 14, 10, 0.3);
+}
+
+.abilities-section {
+    margin: 40px 0;
+}
+
+.ability-card {
+    background: linear-gradient(135deg, #2a2620 0%, #1f1f1f 100%);
+    border: 2px solid #8b4513;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 
+        0 4px 16px rgba(0, 0, 0, 0.6),
+        inset 0 1px 3px rgba(205, 133, 63, 0.2);
+    transition: all 0.3s ease;
+}
+
+.ability-card:hover {
+    border-color: #cd853f;
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.8),
+        inset 0 1px 3px rgba(205, 133, 63, 0.3);
+    transform: translateY(-2px);
+}
+
+.ability-card h3 {
+    color: #cd853f;
+    font-family: 'Cinzel', serif;
+    margin-bottom: 10px;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.ability-level {
+    color: #8b7355;
+    font-size: 0.9em;
+    font-style: italic;
+}
+
+.ability-card p {
+    color: #f3e7c6;
+    line-height: 1.6;
+    margin: 0;
+}
+
+/* Subclass specific styles */
+.subclass-parent {
+    color: #cd853f;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.subclass-parent a {
+    color: #daa520;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.subclass-parent a:hover {
+    color: #f4e4bc;
+}
+
+/* Empty states in view pages */
+.empty-abilities {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(139, 69, 19, 0.1);
+    border-radius: 10px;
+    border: 2px dashed rgba(205, 133, 63, 0.3);
+    color: #8b7355;
+    font-style: italic;
+    font-family: 'Merriweather', serif;
+}
+
+/* Delete button specific styling */
+.delete-button {
+    background: linear-gradient(135deg, #8b0000, #b22222) !important;
+    border: 2px solid #dc143c !important;
+    color: #f4e4bc !important;
+}
+
+.delete-button:hover {
+    background: linear-gradient(135deg, #b22222, #dc143c) !important;
+    box-shadow: 0 6px 15px rgba(220, 20, 60, 0.3) !important;
+}

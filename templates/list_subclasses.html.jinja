@@ -1,17 +1,101 @@
 {% extends "base.html.jinja" %}
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lists.css') }}">
+{% endblock %}
 
 {% block title %}Список Подклассов{% endblock %}
 
 {% block content %}
-    <h1>Список подклассов</h1>
+<div class="list-container">
+    <h1 class="list-title">Подклассы героев</h1>
+    
+    <div class="search-section">
+        <input type="text" id="subclassSearch" class="search-input" placeholder="Поиск подкласса или класса..." autocomplete="off" oninput="showSubclassSuggestions()">
+        <div id="subclassSuggestions" class="suggestions"></div>
+    </div>
+    
     {% if user %}
-        <a href="{{ url_for('subclasses.create_subclass') }}" class="button">Создать новый подкласс</a>
+        <a href="{{ url_for('subclasses.create_subclass') }}" class="create-new-btn">⚔ Создать новый подкласс</a>
     {% endif %}
     
-    {% for subclass in subclasses %}
-        <div class="subclass-item">
-            <h2><a href="{{ url_for('subclasses.view_subclass', subclass_id=subclass.id) }}">{{ subclass.name }}</a></h2>
-            <p>Класс: <a href="{{ url_for('classes.view_class', class_id=subclass.class_id) }}">{{ subclass.parent_class.name }}</a></p>
+    {% if subclasses %}
+        <div class="items-grid">
+            {% for subclass in subclasses %}
+                <div class="item-card">
+                    <h3>{{ subclass.name }}</h3>
+                    <div class="subclass-parent">Класс: <a href="{{ url_for('classes.view_class', class_id=subclass.class_id) }}">{{ subclass.parent_class.name }}</a></div>
+                    <p>{{ subclass.description | nl2br }}</p>
+                    <div class="item-meta">
+                        <span class="item-author">Автор: {{ subclass.author.username if subclass.author else 'Неизвестен' }}</span>
+                        <div class="item-actions">
+                            <a href="{{ url_for('subclasses.view_subclass', subclass_id=subclass.id) }}" class="view-btn">Подробнее</a>
+                            {% if user and (user.id == subclass.author_id or user.id in (subclass.editors_allowed or [])) %}
+                                <a href="{{ url_for('subclasses.edit_subclass', subclass_id=subclass.id) }}" class="edit-btn">Редактировать</a>
+                                <a href="{{ url_for('main.grant_edit', content_type='subclass', content_id=subclass.id) }}" class="manage-btn">Права</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-state-icon">🎭</div>
+            <p>Пока что подклассы не созданы. Станьте первым, кто добавит подкласс!</p>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+const subclasses = [
+    {% for s in subclasses %}
+        {"name": "{{ s.name|escape }}", "class": "{{ s.parent_class.name|escape }}"},
     {% endfor %}
+];
+
+function filterSubclasses() {
+    const searchTerm = document.getElementById('subclassSearch').value.toLowerCase();
+    const cards = document.querySelectorAll('.item-card');
+    
+    cards.forEach(card => {
+        const title = card.querySelector('h3').textContent.toLowerCase();
+        const description = card.querySelector('p').textContent.toLowerCase();
+        const parentClass = card.querySelector('.subclass-parent').textContent.toLowerCase();
+        
+        if (title.includes(searchTerm) || description.includes(searchTerm) || parentClass.includes(searchTerm)) {
+            card.style.display = 'block';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+}
+
+function showSubclassSuggestions() {
+    const input = document.getElementById('subclassSearch');
+    const value = input.value.toLowerCase();
+    const suggestions = subclasses.filter(obj =>
+        (obj.name.toLowerCase().includes(value) || obj.class.toLowerCase().includes(value)) && value.length > 0
+    ).slice(0, 5);
+    
+    const container = document.getElementById('subclassSuggestions');
+    container.innerHTML = '';
+    
+    if (suggestions.length > 0 && value.length > 0) {
+        suggestions.forEach(s => {
+            const div = document.createElement('div');
+            div.className = 'suggestion-item';
+            div.textContent = `${s.name} (${s.class})`;
+            div.onclick = () => {
+                input.value = s.name;
+                container.innerHTML = '';
+                filterSubclasses();
+            };
+            container.appendChild(div);
+        });
+    }
+    
+    filterSubclasses();
+}
+</script>
 {% endblock %}

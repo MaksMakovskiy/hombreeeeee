@@ -1,0 +1,268 @@
+/* Стили для формы создания/редактирования подкласса */
+body {
+    background: linear-gradient(135deg, #2c1810 0%, #1a0f08 50%, #0d0704 100%);
+    color: #daa520;
+    font-family: 'Cinzel', serif;
+    margin: 0;
+    padding: 20px;
+    min-height: 100vh;
+}
+
+.form-container {
+    max-width: clamp(600px, 80vw, 1000px);
+    margin: 0 auto;
+    background: rgba(139, 69, 19, 0.1);
+    border: 2px solid #8b4513;
+    border-radius: 15px;
+    padding: clamp(20px, 3vw, 40px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+}
+
+h2, h3 {
+    color: #cd853f;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    border-bottom: 2px solid #8b4513;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Группы форм */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    color: #cd853f;
+    font-weight: bold;
+    display: block;
+    margin-bottom: 8px;
+    font-size: clamp(14px, 2vw, 16px);
+}
+
+/* Основные поля формы */
+.form-input, 
+.form-textarea, 
+.form-select {
+    width: 100%;
+    padding: clamp(8px, 1.5vw, 12px);
+    background: rgba(43, 24, 16, 0.8);
+    border: 2px solid #8b4513;
+    border-radius: 8px;
+    color: #daa520;
+    font-family: inherit;
+    font-size: clamp(14px, 2vw, 16px);
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.form-input:focus, 
+.form-textarea:focus, 
+.form-select:focus {
+    outline: none;
+    border-color: #cd853f;
+    box-shadow: 0 0 10px rgba(205, 133, 63, 0.3);
+    background: rgba(43, 24, 16, 0.9);
+}
+
+.form-textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* Контейнер способностей */
+#abilities-container {
+    background: rgba(205, 133, 63, 0.1);
+    border: 2px solid #cd853f;
+    border-radius: 10px;
+    padding: clamp(15px, 2vw, 20px);
+    margin: 20px 0;
+    min-height: 100px;
+}
+
+.ability-item {
+    background: rgba(139, 69, 19, 0.3);
+    border: 1px solid #8b4513;
+    border-radius: 8px;
+    padding: clamp(15px, 2vw, 20px);
+    margin-bottom: 20px;
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
+
+.ability-item h4 {
+    color: #daa520;
+    margin: 0 0 15px 0;
+    font-size: clamp(16px, 2vw, 18px);
+    text-align: center;
+    border-bottom: 1px solid #8b4513;
+    padding-bottom: 8px;
+}
+
+.ability-item label {
+    font-size: clamp(12px, 1.5vw, 14px);
+    margin-bottom: 5px;
+    color: #cd853f;
+}
+
+.ability-item input,
+.ability-item textarea {
+    margin-bottom: 12px;
+    background: rgba(43, 24, 16, 0.9);
+}
+
+/* Кнопки */
+.add-btn, 
+.submit-btn, 
+.cancel-btn,
+.remove-ability-btn {
+    border: none;
+    padding: clamp(10px, 1.5vw, 15px) clamp(20px, 3vw, 30px);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: clamp(14px, 2vw, 16px);
+    font-weight: bold;
+    cursor: pointer;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    margin: 5px;
+}
+
+.add-btn {
+    background: linear-gradient(135deg, #228b22 0%, #32cd32 100%);
+    color: #fff;
+    width: 100%;
+    margin: 20px 0;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    z-index: 10;
+    position: relative;
+}
+
+.add-btn:hover {
+    background: linear-gradient(135deg, #32cd32 0%, #90ee90 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.submit-btn {
+    background: linear-gradient(135deg, #8b4513 0%, #cd853f 100%);
+    color: #fff;
+}
+
+.submit-btn:hover {
+    background: linear-gradient(135deg, #cd853f 0%, #daa520 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.cancel-btn {
+    background: linear-gradient(135deg, #696969 0%, #808080 100%);
+    color: #fff;
+}
+
+.cancel-btn:hover {
+    background: linear-gradient(135deg, #808080 0%, #a9a9a9 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+}
+
+.remove-ability-btn {
+    background: linear-gradient(135deg, #dc143c 0%, #ff6347 100%);
+    color: #fff;
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 5px 10px;
+    font-size: 12px;
+}
+
+.remove-ability-btn:hover {
+    background: linear-gradient(135deg, #ff6347 0%, #ff7f7f 100%);
+    transform: translateY(-2px);
+}
+
+.form-actions {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #8b4513;
+}
+
+/* Ошибки */
+.error {
+    color: #ff6b6b;
+    font-size: clamp(12px, 1.5vw, 14px);
+    margin-top: 5px;
+    display: block;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 5px 8px;
+    border-radius: 4px;
+    border-left: 4px solid #ff6b6b;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    body {
+        padding: 10px;
+    }
+    
+    .form-container {
+        padding: 15px;
+    }
+    
+    .ability-item {
+        padding: 15px;
+        padding-top: 45px; /* место для кнопки удаления */
+    }
+    
+    .remove-ability-btn {
+        position: static;
+        margin-top: 15px;
+        width: 100%;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .form-actions .submit-btn,
+    .form-actions .cancel-btn {
+        width: 100%;
+        margin: 5px 0;
+    }
+}
+
+/* Анимации */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Состояние пустого контейнера способностей */
+#abilities-container:empty::before {
+    content: "Пока нет способностей. Нажмите кнопку ниже чтобы добавить первую способность.";
+    color: #cd853f;
+    font-style: italic;
+    text-align: center;
+    display: block;
+    padding: 20px;
+}
+
+/* Скрытые поля */
+input[type="hidden"] {
+    display: none;
+}
