@@ -233,6 +233,9 @@
             <button class="tab-button" onclick="openTab(event, 'foods')">
                 🍖 Еда <span class="item-count">{{ user_foods|length }}</span>
             </button>
+            <button class="tab-button" onclick="openTab(event, 'articles')">
+                📚 Статьи <span class="item-count">{{ user_articles|length }}</span>
+            </button>
         </div>
 
         <!-- Классы -->
@@ -326,6 +329,29 @@
                     <i>🍖</i>
                     <h3>Нет созданной еды</h3>
                     <p>Этот пользователь пока не создал ни одного рецепта</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Статьи -->
+        <div id="articles" class="tab-content">
+            {% if user_articles %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск статей..." 
+                           oninput="filterItems(this.value, 'articles-list')">
+                </div>
+                <ul id="articles-list" class="items-list">
+                    {% for article in user_articles %}
+                        <li class="item" data-name="{{ article.title|lower }}">
+                            <a href="{{ url_for('articles.view_article', article_id=article.id) }}">{{ article.title }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>📚</i>
+                    <h3>Нет созданных статей</h3>
+                    <p>Этот пользователь пока не написал ни одной статьи</p>
                 </div>
             {% endif %}
         </div>

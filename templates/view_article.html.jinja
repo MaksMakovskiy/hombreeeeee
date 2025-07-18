@@ -1,0 +1,487 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}{{ article.title }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/view-pages.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/comments.css') }}">
+<style>
+.view-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+.breadcrumb {
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+    font-size: 0.9rem;
+}
+
+.breadcrumb a {
+    color: #cd853f;
+    text-decoration: none;
+}
+
+.breadcrumb a:hover {
+    color: #ffe082;
+}
+
+.breadcrumb span {
+    color: #ffe082;
+    margin: 0 0.5rem;
+}
+
+.article-content {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #8b4513;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+    color: #f3e7c6;
+    line-height: 1.6;
+    font-size: 1rem;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 2px 8px rgba(205, 133, 63, 0.1);
+}
+
+.article-title {
+    color: #ffe082;
+    font-family: 'Cinzel', serif;
+    font-size: 1.6rem;
+    margin-bottom: 0.8rem;
+    text-align: center;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid #8b4513;
+    padding-bottom: 0.4rem;
+}
+
+.article-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding: 0.6rem;
+    background: rgba(139, 69, 19, 0.1);
+    border-radius: 6px;
+    border: 1px solid #8b4513;
+}
+
+.article-author {
+    color: #cd853f;
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    margin-bottom: 0.2rem;
+}
+
+.article-date {
+    color: #ffe082;
+    font-size: 0.75rem;
+    opacity: 0.8;
+    margin-bottom: 0.2rem;
+}
+
+.article-updated {
+    color: #daa520;
+    font-size: 0.75rem;
+    font-style: italic;
+    margin-bottom: 0;
+}
+
+.article-stats {
+    display: flex;
+    gap: 0.8rem;
+    color: #cd853f;
+    font-size: 0.75rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.article-body {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    max-width: 100%;
+}
+
+.article-meta > div:first-child {
+    line-height: 1.3;
+}
+
+.article-meta > div:first-child > div {
+    margin-bottom: 0.2rem;
+}
+
+.article-meta > div:first-child > div:last-child {
+    margin-bottom: 0;
+}
+
+.action-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    padding: 0.6rem;
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 1px solid #8b4513;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.8rem;
+    align-items: center;
+    flex-wrap: nowrap;
+}
+
+.btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    font-family: 'Cinzel', serif;
+    white-space: nowrap;
+    min-width: 120px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 40px;
+    box-sizing: border-box;
+}
+
+.btn-edit {
+    background: linear-gradient(135deg, #cd853f 0%, #8b4513 100%);
+    color: #ffe082;
+}
+
+.btn-edit:hover {
+    background: linear-gradient(135deg, #daa520 0%, #cd853f 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(205, 133, 63, 0.4);
+}
+
+.btn-grant {
+    background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
+    color: #ffe082;
+}
+
+.btn-grant:hover {
+    background: linear-gradient(135deg, #cd853f 0%, #8b4513 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 69, 19, 0.4);
+}
+
+.btn-delete {
+    background: linear-gradient(135deg, #8b0000 0%, #654321 100%);
+    color: #ffe082;
+}
+
+.btn-delete:hover {
+    background: linear-gradient(135deg, #a00000 0%, #8b0000 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(139, 0, 0, 0.4);
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+    .view-container {
+        padding: 0.5rem;
+    }
+    
+    .article-content {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .article-title {
+        font-size: 1.4rem;
+    }
+    
+    .action-section {
+        flex-direction: column;
+        gap: 0.8rem;
+        align-items: stretch;
+        overflow: visible;
+        padding: 0.5rem;
+    }
+    
+    .action-buttons {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .btn {
+        min-width: 100px;
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        height: 36px;
+    }
+    
+    .article-meta {
+        flex-direction: column;
+        gap: 0.3rem;
+        align-items: flex-start;
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .article-content {
+        padding: 0.8rem;
+    }
+    
+    .article-title {
+        font-size: 1.2rem;
+    }
+    
+    .btn {
+        font-size: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        min-width: 90px;
+        height: 32px;
+    }
+    
+    .action-buttons {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .article-meta {
+        padding: 0.4rem;
+    }
+}
+
+/* Стили для комментариев */
+.comment {
+    background: linear-gradient(135deg, #2a2620 0%, #1f1f1f 100%);
+    border: 1px solid #8b4513;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.4),
+        inset 0 1px 2px rgba(205, 133, 63, 0.1);
+    transition: all 0.3s ease;
+}
+
+.comment:hover {
+    border-color: #cd853f;
+    box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.6),
+        inset 0 1px 2px rgba(205, 133, 63, 0.2);
+    transform: translateY(-1px);
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(139, 69, 19, 0.3);
+}
+
+.comment-author {
+    color: #cd853f;
+    font-weight: bold;
+    font-family: 'Cinzel', serif;
+    font-size: 0.9rem;
+}
+
+.comment-date {
+    color: #a0a0a0;
+    font-size: 0.8rem;
+    font-style: italic;
+}
+
+.comment-text {
+    color: #f3e7c6;
+    line-height: 1.5;
+    font-size: 0.9rem;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.comments-list {
+    margin-top: 1.5rem;
+}
+
+.comments-title {
+    color: #cd853f;
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+    text-align: center;
+    border-bottom: 2px solid #8b4513;
+    padding-bottom: 0.5rem;
+}
+
+/* Скрытая форма для удаления */
+#deleteForm {
+    display: none;
+}
+</style>
+
+<script>
+function confirmDeleteSafe(button) {
+    const articleTitle = button.getAttribute('data-article-title');
+    const deleteUrl = button.getAttribute('data-delete-url');
+    
+    console.log('Article title:', articleTitle);
+    console.log('Delete URL:', deleteUrl);
+    
+    // Двойное подтверждение для безопасности
+    const firstConfirm = confirm(`Вы действительно хотите удалить статью "${articleTitle}"?\n\nЭто действие НЕЛЬЗЯ отменить!`);
+    
+    if (firstConfirm) {
+        const secondConfirm = confirm(`ПОСЛЕДНЕЕ ПРЕДУПРЕЖДЕНИЕ!\n\nСтатья "${articleTitle}" будет удалена НАВСЕГДА!\n\nВы абсолютно уверены?`);
+        
+        if (secondConfirm) {
+            // Создаем и отправляем форму
+            const form = document.getElementById('deleteForm');
+            if (form) {
+                form.action = deleteUrl;
+                console.log('Отправляем форму на URL:', deleteUrl);
+                form.submit();
+            } else {
+                console.error('Форма для удаления не найдена!');
+                alert('Ошибка: форма для удаления не найдена. Обратитесь к администратору.');
+            }
+        }
+    }
+}
+
+// Оставляем старую функцию для совместимости
+function confirmDelete(articleTitle, deleteUrl) {
+    return confirmDeleteSafe({
+        getAttribute: function(attr) {
+            return attr === 'data-article-title' ? articleTitle : deleteUrl;
+        }
+    });
+}
+</script>
+{% endblock %}
+
+{% block content %}
+<div class="view-container">
+    <!-- Навигация -->
+    <div class="breadcrumb">
+        <a href="{{ url_for('articles.list_articles') }}">📚 Статьи</a> 
+        <span>›</span> 
+        <span>{{ article.title }}</span>
+    </div>
+
+    <!-- Действия (если есть права) -->
+    {% if g.user and (article.user_id == g.user.id or g.user.id in (article.editors_allowed or [])) %}
+        <div class="action-section">
+            <div class="article-stats">
+                {% if article.updated_at != article.created_at %}
+                    <span>🔄 Последнее изменение: {{ article.updated_at.strftime('%d.%m.%Y в %H:%M') }}</span>
+                {% endif %}
+            </div>
+            
+            <div class="action-buttons">
+                <a href="{{ url_for('articles.edit_article', article_id=article.id) }}" class="btn btn-edit">
+                    ✏️ Редактировать
+                </a>
+                {% if article.user_id == g.user.id %}
+                    <a href="{{ url_for('main.grant_edit', content_type='article', content_id=article.id) }}" class="btn btn-grant">
+                        👥 Выдать права
+                    </a>
+                    <button type="button" class="btn btn-delete" 
+                            data-article-title="{{ article.title }}" 
+                            data-delete-url="{{ url_for('articles.delete_article', article_id=article.id) }}"
+                            onclick="confirmDeleteSafe(this)">
+                        🗑️ Удалить
+                    </button>
+                {% endif %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- Основное содержимое статьи -->
+    <div class="article-content">
+        <h1 class="article-title">{{ article.title }}</h1>
+        
+        <div class="article-meta">
+            <div>
+                <div class="article-author">👤 Автор: {{ article.user.username }}</div>
+                <div class="article-date">📅 Опубликовано: {{ article.created_at.strftime('%d.%m.%Y в %H:%M') }}</div>
+                {% if article.updated_at != article.created_at %}
+                    <div class="article-updated">🔄 Обновлено: {{ article.updated_at.strftime('%d.%m.%Y в %H:%M') }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="article-stats">
+                <span>💬 {{ article.comments.count() }}</span>
+            </div>
+        </div>
+
+        <div class="article-body">
+            {{ article.content | nl2br }}
+        </div>
+    </div>
+
+    <!-- Комментарии -->
+    <div class="comments-section">
+        <h2 class="comments-title">💬 Комментарии</h2>
+        
+        {% if g.user %}
+            <div class="comment-form-container">
+                <h3 class="comment-form-title">Добавить комментарий</h3>
+                <form method="POST" action="{{ url_for('articles.add_comment', article_id=article.id) }}" class="comment-form">
+                    {{ comment_form.csrf_token }}
+                    <div class="form-group">
+                        {{ comment_form.text(class="comment-textarea", placeholder="Поделитесь своими мыслями о статье...") }}
+                    </div>
+                    <div class="form-actions">
+                        {{ comment_form.submit(class="comment-submit-btn") }}
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <div class="login-prompt">
+                <p><a href="{{ url_for('auth.login') }}">Войдите</a>, чтобы оставить комментарий.</p>
+            </div>
+        {% endif %}
+
+        {% if comments %}
+            <div class="comments-list">
+                {% for comment in comments %}
+                    <div class="comment">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ comment.author.username }}</span>
+                            <span class="comment-date">{{ comment.timestamp.strftime('%d.%m.%Y в %H:%M') }}</span>
+                        </div>
+                        <div class="comment-text">
+                            {{ comment.text | nl2br }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="no-comments">
+                <p>Пока комментариев нет. Станьте первым!</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Скрытая форма для удаления статьи -->
+<form id="deleteForm" method="POST" style="display: none;">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+</form>
+
+{% endblock %}

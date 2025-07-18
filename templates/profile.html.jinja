@@ -328,6 +328,9 @@
             <button class="tab-button" onclick="openTab(event, 'foods')">
                 🍖 Еда <span class="item-count">{{ (user_foods|length + editable_foods|length) }}</span>
             </button>
+            <button class="tab-button" onclick="openTab(event, 'articles')">
+                📚 Статьи <span class="item-count">{{ (user_articles|length + editable_articles|length) }}</span>
+            </button>
         </div>
 
         <!-- Классы -->
@@ -492,6 +495,46 @@
                     <i>🍖</i>
                     <h3>Нет доступной еды</h3>
                     <p>У вас нет созданной еды и прав на редактирование другой еды</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Статьи -->
+        <div id="articles" class="tab-content">
+            {% if user_articles or editable_articles %}
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="🔍 Поиск статей..." 
+                           oninput="filterItems(this.value, 'articles-list')">
+                </div>
+                <ul id="articles-list" class="items-list">
+                    {% if user_articles %}
+                        <li class="section-header">
+                            <h4>📋 Ваши статьи</h4>
+                        </li>
+                        {% for article in user_articles %}
+                            <li class="item" data-name="{{ article.title|lower }}">
+                                <a href="{{ url_for('articles.edit_article', article_id=article.id) }}">{{ article.title }}</a>
+                                <span class="owner-badge">Владелец</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                    {% if editable_articles %}
+                        <li class="section-header">
+                            <h4>✏️ Доступны для редактирования</h4>
+                        </li>
+                        {% for article in editable_articles %}
+                            <li class="item" data-name="{{ article.title|lower }}">
+                                <a href="{{ url_for('articles.edit_article', article_id=article.id) }}">{{ article.title }}</a>
+                                <span class="editor-badge">Редактор</span>
+                            </li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
+            {% else %}
+                <div class="empty-state">
+                    <i>📚</i>
+                    <h3>Нет доступных статей</h3>
+                    <p>У вас нет созданных статей и прав на редактирование других статей</p>
                 </div>
             {% endif %}
         </div>

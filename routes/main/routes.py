@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, url_for, g, request, flash, session
-from crud import db, Class, Subclass, User, Race, Food
+from crud import db, Class, Subclass, User, Race, Food, Article
 from utils.decorators import login_required
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
@@ -41,12 +41,14 @@ def dashboard():
     user_subclasses = Subclass.query.filter_by(user_id=g.user.id).all()
     user_races = Race.query.filter_by(user_id=g.user.id).all()
     user_foods = Food.query.filter_by(user_id=g.user.id).all()
+    user_articles = Article.query.filter_by(user_id=g.user.id).all()
     return render_template('dashboard.html.jinja',
                          user=g.user,
                          user_classes=user_classes,
                          user_subclasses=user_subclasses,
                          user_races=user_races,
-                         user_foods=user_foods)
+                         user_foods=user_foods,
+                         user_articles=user_articles)
 
 @main_bp.route("/grant_edit/<content_type>/<int:content_id>", methods=['GET', 'POST'])
 @login_required
@@ -59,6 +61,8 @@ def grant_edit(content_type, content_id):
         obj = Race.query.get_or_404(content_id)
     elif content_type == "food":
         obj = Food.query.get_or_404(content_id)
+    elif content_type == "article":
+        obj = Article.query.get_or_404(content_id)
     else:
         flash("Тип контента не поддерживается.", "danger")
         return redirect(url_for('main.index'))

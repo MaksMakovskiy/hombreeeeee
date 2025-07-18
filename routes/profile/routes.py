@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, redirect, url_for, flash, session,
 from flask_wtf import FlaskForm
 from wtforms import PasswordField, SubmitField
 from wtforms.validators import DataRequired, Length, EqualTo
-from crud import get_user_by_id, update_user_password, delete_user, Class, Subclass, Race, Food, db
+from crud import get_user_by_id, update_user_password, delete_user, Class, Subclass, Race, Food, Article, db
 from utils.decorators import login_required
 from forms.comments import ProfileForm
 import json
@@ -66,12 +66,14 @@ def view_profile():
     user_subclasses = Subclass.query.filter_by(user_id=user_id).all()
     user_races = Race.query.filter_by(user_id=user_id).all()
     user_foods = Food.query.filter_by(user_id=user_id).all()
+    user_articles = Article.query.filter_by(user_id=user_id).all()
     
     # Объекты, которые пользователь может редактировать (но не создавал сам)
     editable_classes = []
     editable_subclasses = []
     editable_races = []
     editable_foods = []
+    editable_articles = []
     
     # Для каждого типа объектов проверяем права доступа
     for cls in Class.query.filter(Class.user_id != user_id).all():
@@ -90,6 +92,10 @@ def view_profile():
         if food.editors_allowed and user_id in food.editors_allowed:
             editable_foods.append(food)
     
+    for article in Article.query.filter(Article.user_id != user_id).all():
+        if article.editors_allowed and user_id in article.editors_allowed:
+            editable_articles.append(article)
+    
     return render_template(
         'profile.html.jinja',
         form=form,
@@ -98,10 +104,12 @@ def view_profile():
         user_subclasses=user_subclasses,
         user_races=user_races,
         user_foods=user_foods,
+        user_articles=user_articles,
         editable_classes=editable_classes,
         editable_subclasses=editable_subclasses,
         editable_races=editable_races,
-        editable_foods=editable_foods
+        editable_foods=editable_foods,
+        editable_articles=editable_articles
     )
 
 @profile_bp.route("/view_user/<username>")
@@ -119,6 +127,7 @@ def view_user_profile(username):
     user_subclasses = Subclass.query.filter_by(user_id=user.id).all()
     user_races = Race.query.filter_by(user_id=user.id).all()
     user_foods = Food.query.filter_by(user_id=user.id).all()
+    user_articles = Article.query.filter_by(user_id=user.id).all()
     
     return render_template(
         'view_user_profile.html.jinja',
@@ -126,5 +135,6 @@ def view_user_profile(username):
         user_classes=user_classes,
         user_subclasses=user_subclasses,
         user_races=user_races,
-        user_foods=user_foods
+        user_foods=user_foods,
+        user_articles=user_articles
     )

@@ -395,3 +395,110 @@
         text-align: center;
     }
 }
+
+/* Grid layout for articles and other card-based content */
+.grid-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.card {
+    background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+    border: 2px solid #8b4513;
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.6),
+        inset 0 1px 8px rgba(205, 133, 63, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    border-color: #cd853f;
+    box-shadow: 
+        0 12px 48px rgba(0, 0, 0, 0.8),
+        0 0 20px rgba(205, 133, 63, 0.3);
+}
+
+.card-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #8b4513;
+}
+
+.card-title {
+    margin: 0 0 1rem 0;
+    font-size: 1.3rem;
+    font-family: 'Cinzel', serif;
+}
+
+.card-title a {
+    color: #ffe082;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.card-title a:hover {
+    color: #daa520;
+    text-shadow: 0 0 8px rgba(218, 165, 32, 0.6);
+}
+
+.card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.card-meta .author {
+    color: #cd853f;
+    font-weight: bold;
+}
+
+.card-meta .date, .card-meta .updated {
+    color: #ffe082;
+    opacity: 0.8;
+}
+
+.card-footer {
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.card-stats {
+    display: flex;
+    gap: 1rem;
+    color: #cd853f;
+    font-size: 0.9rem;
+}
+
+.action-buttons {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+    .grid-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+    
+    .card-meta {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

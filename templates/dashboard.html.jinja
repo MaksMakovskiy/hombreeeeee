@@ -120,6 +120,28 @@
             </div>
         </div>
 
+        <!-- Articles -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h3>📚 Ваши Статьи</h3>
+                <span class="item-count">{{ user_articles|length if user_articles else 0 }}</span>
+            </div>
+            <div class="card-content">
+                {% if user_articles %}
+                    <div class="items-list">
+                        {% for article in user_articles %}
+                            <div class="item-link">
+                                <a href="{{ url_for('articles.view_article', article_id=article.id) }}">{{ article.title }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="empty-message">Вы пока не написали ни одной статьи</p>
+                {% endif %}
+                <a href="{{ url_for('articles.create_article') }}" class="create-btn">➕ Написать новую статью</a>
+            </div>
+        </div>
+
         <!-- Quick Stats -->
         <div class="dashboard-card stats-card">
             <div class="card-header">
@@ -128,7 +150,7 @@
             <div class="card-content">
                 <div class="stats-grid">
                     <div class="stat-item">
-                        <span class="stat-number">{{ (user_classes|length + user_subclasses|length + user_races|length + user_foods|length) if (user_classes or user_subclasses or user_races or user_foods) else 0 }}</span>
+                        <span class="stat-number">{{ (user_classes|length + user_subclasses|length + user_races|length + user_foods|length + user_articles|length) if (user_classes or user_subclasses or user_races or user_foods or user_articles) else 0 }}</span>
                         <span class="stat-label">Всего контента</span>
                     </div>
                 </div>

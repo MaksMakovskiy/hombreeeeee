@@ -102,6 +102,7 @@ class Comment(db.Model):
     subclass_id = db.Column(db.Integer, db.ForeignKey('subclass.id'))
     race_id = db.Column(db.Integer, db.ForeignKey('races.id'))        # Добавить
     food_id = db.Column(db.Integer, db.ForeignKey('food.id'))         # Добавить
+    article_id = db.Column(db.Integer, db.ForeignKey('articles.id'))  # Добавить для статей
 
 class Race(db.Model):
     __tablename__ = 'races'
@@ -130,6 +131,22 @@ class Food(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     editors_allowed = db.Column(db.JSON, default=list)
     comments = db.relationship('Comment', backref='food', lazy='dynamic', cascade='all, delete-orphan') # Добавить
+
+class Article(db.Model):
+    __tablename__ = 'articles'
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    editors_allowed = db.Column(db.JSON, default=list)
+    comments = db.relationship('Comment', backref='article', lazy='dynamic', cascade='all, delete-orphan')
+    
+    user = db.relationship('User', backref='articles')
+    
+    def __repr__(self):
+        return f'<Article {self.title}>'
 
 # --- Вспомогательные функции для пользователей (существующие) ---
 def create_user(username, password):

@@ -5,6 +5,8 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf.csrf import CSRFProtect
 from routes import auth_bp, classes_bp, subclasses_bp, profile_bp, main_bp
 from routes.races.routes import races_bp
+from routes.food.routes import food_bp
+from routes.articles.routes import articles_bp
 from crud import db
 from markupsafe import Markup
 import os
@@ -31,6 +33,7 @@ app.register_blueprint(profile_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(races_bp)
 app.register_blueprint(food_bp)
+app.register_blueprint(articles_bp)
 
 db.init_app(app)
 with app.app_context():

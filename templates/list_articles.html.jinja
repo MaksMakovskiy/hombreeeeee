@@ -1,0 +1,72 @@
+{% extends "base.html.jinja" %}
+
+{% block title %}Статьи{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/lists.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="list-container">
+    <div class="list-header">
+        <h1 class="list-title">📚 Библиотека Статей</h1>
+        <p class="list-subtitle">Знания и мудрость мира D&D</p>
+        {% if g.user %}
+            <a href="{{ url_for('articles.create_article') }}" class="create-btn">✍️ Написать статью</a>
+        {% endif %}
+    </div>
+
+    {% if articles %}
+        <div class="grid-container">
+            {% for article in articles %}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <a href="{{ url_for('articles.view_article', article_id=article.id) }}">
+                                {{ article.title }}
+                            </a>
+                        </h3>
+                        <div class="card-meta">
+                            <span class="author">👤 {{ article.user.username }}</span>
+                            <span class="date">📅 {{ article.created_at.strftime('%d.%m.%Y') }}</span>
+                            {% if article.updated_at != article.created_at %}
+                                <span class="updated">🔄 {{ article.updated_at.strftime('%d.%m.%Y') }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <div class="card-stats">
+                            <span class="comment-count">💬 {{ article.comments.count() }}</span>
+                        </div>
+                        
+                        {% if g.user and (article.user_id == g.user.id or g.user.id in (article.editors_allowed or [])) %}
+                            <div class="action-buttons">
+                                <a href="{{ url_for('articles.edit_article', article_id=article.id) }}" class="btn btn-edit">
+                                    ✏️ Редактировать
+                                </a>
+                                {% if article.user_id == g.user.id %}
+                                    <a href="{{ url_for('main.grant_edit', content_type='article', content_id=article.id) }}" class="btn btn-grant">
+                                        👥 Выдать права
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">📜</div>
+            <h3>Библиотека пуста</h3>
+            <p>Станьте первым автором! Поделитесь своими знаниями с сообществом.</p>
+            {% if g.user %}
+                <a href="{{ url_for('articles.create_article') }}" class="create-btn">✍️ Написать первую статью</a>
+            {% else %}
+                <p><a href="{{ url_for('auth.login') }}">Войдите</a>, чтобы создавать статьи.</p>
+            {% endif %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
